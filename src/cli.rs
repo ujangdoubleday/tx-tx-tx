@@ -34,9 +34,9 @@ pub enum Commands {
         #[arg(long)]
         signature: String,
 
-        /// Expected Ethereum address (optional, with or without 0x prefix)
+        /// Expected Ethereum address (with or without 0x prefix)
         #[arg(long)]
-        address: Option<String>,
+        address: String,
     },
 }
 
@@ -60,26 +60,19 @@ impl Cli {
                 Ok(())
             }
 
-            Commands::Verify { message, signature, address: expected_address_str } => {
-                match expected_address_str {
-                    Some(addr_str) => {
-                        let expected_addr = crate::crypto::normalize_address(addr_str)?;
-                        let addr_bytes = crate::crypto::hex_to_bytes(&expected_addr)?;
-                        let expected_address = ethers::types::Address::from_slice(&addr_bytes);
-                        
-                        match evm::verify_message(signature, message, expected_address) {
-                            Ok(_) => {
-                                println!("valid");
-                                Ok(())
-                            }
-                            Err(_) => {
-                                println!("invalid");
-                                Ok(())
-                            }
-                        }
+            Commands::Verify { message, signature, address } => {
+                let expected_addr = crate::crypto::normalize_address(address)?;
+                let addr_bytes = crate::crypto::hex_to_bytes(&expected_addr)?;
+                let expected_address = ethers::types::Address::from_slice(&addr_bytes);
+                
+                match evm::verify_message(signature, message, expected_address) {
+                    Ok(_) => {
+                        println!("valid");
+                        Ok(())
                     }
-                    None => {
-                        anyhow::bail!("--address parameter is required for verify command")
+                    Err(_) => {
+                        println!("invalid");
+                        Ok(())
                     }
                 }
             }
