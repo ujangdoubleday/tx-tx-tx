@@ -1,4 +1,4 @@
-use crate::crypto;
+use crate::core::crypto;
 use anyhow::Result;
 use ethers::types::Address;
 use secp256k1::ecdsa::{RecoverableSignature, RecoveryId, Signature};
@@ -87,7 +87,7 @@ mod tests {
         let message = "hello";
         let expected_address = Address::from_str("0x7e5f4552091a69125d5dfcb7b8c2659029395bdf").unwrap();
 
-        let signature = crate::evm::sign::sign_message(private_key, message).unwrap();
+        let signature = crate::features::signature::sign::sign_message(private_key, message).unwrap();
         let address = verify_message(&signature, message, expected_address);
 
         assert!(address.is_ok());
@@ -117,7 +117,7 @@ mod tests {
         let message2 = "world";
         let expected_address = Address::from_str("0x7e5f4552091a69125d5dfcb7b8c2659029395bdf").unwrap();
 
-        let signature = crate::evm::sign::sign_message(private_key, message1).unwrap();
+        let signature = crate::features::signature::sign::sign_message(private_key, message1).unwrap();
         let result_correct = verify_message(&signature, message1, expected_address);
         let result_wrong = verify_message(&signature, message2, expected_address);
 

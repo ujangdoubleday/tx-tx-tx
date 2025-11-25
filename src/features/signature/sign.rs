@@ -1,4 +1,4 @@
-use crate::crypto;
+use crate::core::crypto;
 use anyhow::Result;
 use ethers::types::Address;
 use secp256k1::{Message, Secp256k1, SecretKey};
@@ -17,7 +17,7 @@ use sha3::{Digest, Keccak256};
 /// # Returns
 /// Signature as hex string with 0x prefix, total 132 characters (0x + 64 + 64 + 2)
 pub fn sign_message(private_key: &str, message: &str) -> Result<String> {
-    let private_key_str = crate::config::normalize_private_key(private_key);
+    let private_key_str = crate::core::config::normalize_private_key(private_key);
 
     let key_bytes = crypto::hex_to_bytes(&private_key_str)?;
     if key_bytes.len() != 32 {
@@ -47,7 +47,7 @@ pub fn sign_message(private_key: &str, message: &str) -> Result<String> {
 
 /// Derives the Ethereum address from a private key
 pub fn get_address_from_private_key(private_key: &str) -> Result<Address> {
-    let private_key_str = crate::config::normalize_private_key(private_key);
+    let private_key_str = crate::core::config::normalize_private_key(private_key);
 
     let key_bytes = crypto::hex_to_bytes(&private_key_str)?;
     if key_bytes.len() != 32 {

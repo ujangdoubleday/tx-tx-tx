@@ -1,6 +1,5 @@
 pub mod cli;
-pub mod config;
-pub mod crypto;
-pub mod evm;
+pub mod core;
+pub mod features;
 
-pub use evm::{sign_message, verify_message};
+pub use features::{sign_message, verify_message};

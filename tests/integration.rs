@@ -1,4 +1,4 @@
-use tx_tx_tx::{config, sign_message, verify_message};
+use tx_tx_tx::{core::config, sign_message, verify_message};
 
 #[test]
 fn test_sign_and_verify_round_trip() {
@@ -103,7 +103,7 @@ fn test_verify_signature_case_insensitive() {
 
 #[test]
 fn test_recovery_with_different_messages() {
-    use tx_tx_tx::crypto;
+    use tx_tx_tx::core::crypto;
     use secp256k1::{Message, Secp256k1, SecretKey};
     use secp256k1::ecdsa::RecoverableSignature;
     
@@ -144,7 +144,7 @@ fn test_recovery_with_different_messages() {
 
 #[test]
 fn test_verify_with_wrong_message_debug() {
-    use tx_tx_tx::evm;
+    use tx_tx_tx::features;
     use ethers::types::Address;
     use std::str::FromStr;
     
@@ -153,19 +153,19 @@ fn test_verify_with_wrong_message_debug() {
     let message2 = "world";
     let expected_address = Address::from_str("0x7e5f4552091a69125d5dfcb7b8c2659029395bdf").unwrap();
     
-    let signature = evm::sign_message(private_key, message1).unwrap();
+    let signature = features::sign_message(private_key, message1).unwrap();
     println!("Signature: {}", signature);
     
-    let result1 = evm::verify_message(&signature, message1, expected_address);
+    let result1 = features::verify_message(&signature, message1, expected_address);
     println!("Verify with message1: {:?}", result1);
     
-    let result2 = evm::verify_message(&signature, message2, expected_address);
+    let result2 = features::verify_message(&signature, message2, expected_address);
     println!("Verify with message2: {:?}", result2);
 }
 
 #[test]
 fn test_verify_ecdsa_directly() {
-    use tx_tx_tx::crypto;
+    use tx_tx_tx::core::crypto;
     use secp256k1::{Message, Secp256k1, SecretKey};
     use secp256k1::ecdsa::Signature;
     
