@@ -1,10 +1,30 @@
 use colored::Colorize;
 use inquire::Text;
+use std::io::{self, Write};
 use crate::{core, features};
+
+const WIDTH: usize = 80;
 
 pub fn clear_screen() {
     print!("\x1B[2J\x1B[1;1H");
     std::io::Write::flush(&mut std::io::stdout()).ok();
+}
+
+fn print_separator() {
+    println!("{}", "─".repeat(WIDTH));
+}
+
+fn print_line(label: &str, value: &str, color_fn: fn(&str) -> colored::ColoredString) {
+    let label_width = 10;
+    println!("  {:<width$} {}", format!("{}:", label).bold(), color_fn(value), width = label_width);
+}
+
+fn read_input_line(prompt: &str) -> anyhow::Result<String> {
+    print!("{}", prompt);
+    io::stdout().flush()?;
+    let mut input = String::new();
+    io::stdin().read_line(&mut input)?;
+    Ok(input.trim().to_string())
 }
 
 pub fn handle_sign() -> anyhow::Result<()> {
@@ -30,10 +50,10 @@ pub fn handle_sign() -> anyhow::Result<()> {
     println!("{}", "✓".green().bold());
 
     println!("\n{}", "✅ SIGNATURE GENERATED".green().bold());
-    println!("  {}: {}", "Message".bold(), message.trim());
-    println!("  {}: {}", "Signature".bold(), signature.yellow());
-    println!("  {}: {}", "Address".bold(), format!("{:#x}", address).yellow());
-    println!("{}", "─".repeat(80));
+    print_line("Message", message.trim(), |s| s.normal());
+    print_line("Signature", &signature, |s| s.yellow());
+    print_line("Address", &format!("{:#x}", address), |s| s.yellow());
+    print_separator();
     println!();
 
     Ok(())
@@ -50,11 +70,9 @@ pub fn handle_verify() -> anyhow::Result<()> {
         anyhow::bail!("Message cannot be empty");
     }
 
-    let signature = Text::new("Enter the signature (with or without 0x):")
-        .prompt()
-        .map_err(|_| anyhow::anyhow!("Input cancelled"))?;
+    let signature = read_input_line("Enter the signature (with or without 0x): ")?;
 
-    if signature.trim().is_empty() {
+    if signature.is_empty() {
         anyhow::bail!("Signature cannot be empty");
     }
 
@@ -73,7 +91,7 @@ pub fn handle_verify() -> anyhow::Result<()> {
     let addr_bytes = core::crypto::hex_to_bytes(&expected_addr)?;
     let expected_address = ethers::types::Address::from_slice(&addr_bytes);
 
-    let is_valid = match features::verify_message(signature.trim(), message.trim(), expected_address) {
+    let is_valid = match features::verify_message(&signature, message.trim(), expected_address) {
         Ok(_) => true,
         Err(_) => false,
     };
@@ -86,10 +104,10 @@ pub fn handle_verify() -> anyhow::Result<()> {
         println!("\n{}", "❌ SIGNATURE IS INVALID".red().bold());
     }
 
-    println!("  {}: {}", "Message".bold(), message.trim().cyan());
-    println!("  {}: {}", "Signature".bold(), signature.trim().yellow());
-    println!("  {}: {}", "Address".bold(), format!("{:#x}", expected_address).cyan());
-    println!("{}", "─".repeat(80));
+    print_line("Message", message.trim(), |s| s.cyan());
+    print_line("Signature", &signature, |s| s.yellow());
+    print_line("Address", &format!("{:#x}", expected_address), |s| s.cyan());
+    print_separator();
     println!();
 
     Ok(())
