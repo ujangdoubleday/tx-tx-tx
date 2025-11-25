@@ -8,7 +8,6 @@ pub fn clear_screen() {
 }
 
 pub fn handle_sign() -> anyhow::Result<()> {
-    clear_screen();
     println!("{}", "📝 SIGN MESSAGE".cyan().bold());
 
     let message = Text::new("Enter message to sign:")
@@ -34,15 +33,13 @@ pub fn handle_sign() -> anyhow::Result<()> {
     println!("  {}: {}", "Message".bold(), message.trim());
     println!("  {}: {}", "Signature".bold(), signature.yellow());
     println!("  {}: {}", "Address".bold(), format!("{:#x}", address).yellow());
-
-    let _ = Text::new("\nPress Enter to continue...")
-        .prompt();
+    println!("{}", "─".repeat(80));
+    println!();
 
     Ok(())
 }
 
 pub fn handle_verify() -> anyhow::Result<()> {
-    clear_screen();
     println!("{}", "✓ VERIFY MESSAGE".cyan().bold());
 
     let message = Text::new("Enter the message:")
@@ -90,10 +87,10 @@ pub fn handle_verify() -> anyhow::Result<()> {
     }
 
     println!("  {}: {}", "Message".bold(), message.trim().cyan());
+    println!("  {}: {}", "Signature".bold(), signature.trim().yellow());
     println!("  {}: {}", "Address".bold(), format!("{:#x}", expected_address).cyan());
-
-    let _ = Text::new("\nPress Enter to continue...")
-        .prompt();
+    println!("{}", "─".repeat(80));
+    println!();
 
     Ok(())
 }

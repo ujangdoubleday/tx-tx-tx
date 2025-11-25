@@ -24,10 +24,10 @@ fn print_header() {
 }
 
 pub fn run() -> anyhow::Result<()> {
-    loop {
-        clear_screen();
-        print_header();
+    clear_screen();
+    print_header();
 
+    loop {
         let options = vec![MenuItem::Sign, MenuItem::Verify, MenuItem::Exit];
 
         let selected = Select::new("Choose an option:", options)
@@ -39,11 +39,13 @@ pub fn run() -> anyhow::Result<()> {
                 if let Err(e) = handlers::handle_sign() {
                     println!("{}", format!("❌ {}", e).red().bold());
                 }
+                println!();
             }
             Ok(MenuItem::Verify) => {
                 if let Err(e) = handlers::handle_verify() {
                     println!("{}", format!("❌ {}", e).red().bold());
                 }
+                println!();
             }
             Ok(MenuItem::Exit) => {
                 clear_screen();
