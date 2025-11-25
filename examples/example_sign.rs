@@ -1,4 +1,4 @@
-use tx_tx_tx::{config, sign_message, verify_message};
+use tx_tx_tx::{core::config, sign_message, verify_message};
 use ethers::types::Address;
 use std::str::FromStr;
 
