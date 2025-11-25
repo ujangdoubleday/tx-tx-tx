@@ -54,7 +54,9 @@ impl Cli {
                 };
 
                 let signature = evm::sign_message(&key, message)?;
+                let address = evm::get_address_from_private_key(&key)?;
                 println!("Signature: {}", signature);
+                println!("Address: {:#x}", address);
                 Ok(())
             }
 
@@ -66,13 +68,12 @@ impl Cli {
                         let expected_address = ethers::types::Address::from_slice(&addr_bytes);
                         
                         match evm::verify_message(signature, message, expected_address) {
-                            Ok(recovered_address) => {
-                                println!("VALID!");
-                                println!("{:#x}", recovered_address);
+                            Ok(_) => {
+                                println!("valid");
                                 Ok(())
                             }
                             Err(_) => {
-                                println!("INVALID");
+                                println!("invalid");
                                 Ok(())
                             }
                         }
