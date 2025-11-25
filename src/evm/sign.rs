@@ -1,6 +1,8 @@
 use crate::crypto;
 use anyhow::Result;
+use ethers::types::Address;
 use secp256k1::{Message, Secp256k1, SecretKey};
+use sha3::{Digest, Keccak256};
 
 /// Signs a message according to EIP-191 personal_sign standard and returns hex signature
 ///
@@ -41,6 +43,34 @@ pub fn sign_message(private_key: &str, message: &str) -> Result<String> {
     signature.push(recovery_id.to_i32() as u8 + 27);
 
     Ok(crypto::bytes_to_hex(&signature))
+}
+
+/// Derives the Ethereum address from a private key
+pub fn get_address_from_private_key(private_key: &str) -> Result<Address> {
+    let private_key_str = crate::config::normalize_private_key(private_key);
+
+    let key_bytes = crypto::hex_to_bytes(&private_key_str)?;
+    if key_bytes.len() != 32 {
+        anyhow::bail!("Private key must be 32 bytes");
+    }
+
+    let secret_key = SecretKey::from_slice(&key_bytes)
+        .map_err(|e| anyhow::anyhow!("Invalid private key: {}", e))?;
+
+    let secp = Secp256k1::new();
+    let public_key = secret_key.public_key(&secp);
+    let public_key_bytes = public_key.serialize_uncompressed();
+    let public_key_uncompressed = &public_key_bytes[1..];
+
+    let mut hasher = Keccak256::new();
+    hasher.update(public_key_uncompressed);
+    let hash = hasher.finalize();
+
+    let address_bytes: [u8; 20] = hash.as_slice()[12..32]
+        .try_into()
+        .map_err(|_| anyhow::anyhow!("Address derivation failed"))?;
+
+    Ok(Address::from(address_bytes))
 }
 
 #[cfg(test)]
