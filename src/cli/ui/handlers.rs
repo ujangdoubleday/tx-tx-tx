@@ -6,7 +6,7 @@ use crate::{core, features};
 const WIDTH: usize = 80;
 
 pub fn clear_screen() {
-    print!("\x1B[2J\x1B[1;1H");
+    print!("\x1B[2J\x1B[3J\x1B[1;1H");
     std::io::Write::flush(&mut std::io::stdout()).ok();
 }
 
