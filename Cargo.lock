@@ -3610,18 +3610,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
- "colored",
- "dotenvy",
- "ethers",
- "hex",
- "inquire",
- "secp256k1",
- "serde",
- "serde_json",
- "sha3",
- "tempfile",
- "thiserror 1.0.69",
- "tokio",
+ "x_cli",
 ]
 
 [[package]]
@@ -4154,6 +4143,55 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "05f360fc0b24296329c78fda852a1e9ae82de9cf7b27dae4b7f62f118f77b9ed"
 dependencies = [
  "tap",
+]
+
+[[package]]
+name = "x_cli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "colored",
+ "ethers",
+ "inquire",
+ "x_core",
+ "x_signature",
+ "x_transaction",
+]
+
+[[package]]
+name = "x_core"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "dotenvy",
+ "ethers",
+ "hex",
+ "serde",
+ "serde_json",
+ "sha3",
+]
+
+[[package]]
+name = "x_signature"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ethers",
+ "hex",
+ "secp256k1",
+ "sha3",
+ "x_core",
+]
+
+[[package]]
+name = "x_transaction"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ethers",
+ "tokio",
+ "x_core",
 ]
 
 [[package]]
