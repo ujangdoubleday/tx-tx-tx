@@ -1,0 +1,29 @@
+[
+  {
+    "id": "ethereum_mainnet",
+    "name": "Ethereum Mainnet",
+    "chainId": 1,
+    "rpc": [
+      "https://rpc.ankr.com/eth"
+    ],
+    "wsRpc": [
+      "wss://eth.llamarpc.com"
+    ],
+    "currency": { "name": "Ether", "symbol": "ETH", "decimals": 18 },
+    "blockExplorer": { "url": "https://etherscan.io" }
+  },
+  {
+    "id": "testnet_sepolia",
+    "name": "Ethereum Sepolia Testnet",
+    "chainId": 11155111,
+    "rpc": [
+        "https://ethereum-sepolia-rpc.publicnode.com",
+        "https://0xrpc.io/sep"
+    ],
+    "wsRpc": [
+      "wss://ethereum-sepolia-rpc.publicnode.com"
+    ],
+    "currency": { "name": "Sepolia Ether", "symbol": "ETH", "decimals": 18 },
+    "blockExplorer": { "url": "https://sepolia.etherscan.io" }
+  }
+]
