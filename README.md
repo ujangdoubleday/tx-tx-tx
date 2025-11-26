@@ -2,6 +2,10 @@
 
 EVM message signing, verification, and ETH transfer tool implementing EIP-191 `personal_sign` standard.
 
+## Prerequisites
+
+- [Foundry](https://getfoundry.sh/) - Required for smart contract development and building
+
 ## Quick Start
 
 ### Build
@@ -82,26 +86,6 @@ Run without arguments:
 cargo run
 ```
 
-### Library API
-
-```rust
-use tx_tx_tx::{sign_message, verify_message, config};
-
-fn main() -> anyhow::Result<()> {
-    let private_key = "0x0000000000000000000000000000000000000000000000000000000000000001";
-    let message = "Hello";
-
-    let signature = sign_message(private_key, message)?;
-    let expected_address = "0x5ed9d0e08da37ce9aee1ac9a0d3a95b1a4c6e2ed".parse()?;
-    let address = verify_message(&signature, message, expected_address)?;
-
-    println!("Signature: {}", signature);
-    println!("Address: {}", address);
-
-    Ok(())
-}
-```
-
 ## Running Tests
 
 ```bash
@@ -111,7 +95,7 @@ cargo test --test integration  # Integration tests
 cargo run --example example_sign  # Example
 ```
 
-## ⚠️ Security Warning
+## Security Warning
 
 **NEVER use the example private key for real transactions!**
 
