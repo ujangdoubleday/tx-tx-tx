@@ -1,7 +1,9 @@
 use colored::Colorize;
 use inquire::Text;
 use std::io::{self, Write};
-use crate::{core, features};
+use x_core as core;
+use x_signature;
+use x_transaction;
 
 const WIDTH: usize = 80;
 
@@ -41,11 +43,11 @@ pub fn handle_sign() -> anyhow::Result<()> {
     print!("{}", "Generating signature... ".cyan());
     std::io::Write::flush(&mut std::io::stdout())?;
 
-    let key = core::config::load_private_key()
+    let key = x_core::config::load_private_key()
         .map_err(|_| anyhow::anyhow!("Failed to load private key from .env"))?;
 
-    let signature = features::sign_message(&key, message.trim())?;
-    let address = features::get_address_from_private_key(&key)?;
+    let signature = x_signature::sign_message(&key, message.trim())?;
+    let address = x_signature::get_address_from_private_key(&key)?;
 
     println!("{}", "✓".green().bold());
 
@@ -91,7 +93,7 @@ pub fn handle_verify() -> anyhow::Result<()> {
     let addr_bytes = core::crypto::hex_to_bytes(&expected_addr)?;
     let expected_address = ethers::types::Address::from_slice(&addr_bytes);
 
-    let is_valid = match features::verify_message(&signature, message.trim(), expected_address) {
+    let is_valid = match x_signature::verify_message(&signature, message.trim(), expected_address) {
         Ok(_) => true,
         Err(_) => false,
     };
@@ -142,15 +144,15 @@ pub fn handle_transfer_sepolia() -> anyhow::Result<()> {
     print!("{}", "Processing transfer... ".cyan());
     std::io::Write::flush(&mut std::io::stdout())?;
 
-    let key = crate::core::config::load_private_key()
+    let key = core::config::load_private_key()
         .map_err(|_| anyhow::anyhow!("Failed to load private key from .env"))?;
 
-    let networks = crate::core::networks::load_networks()?;
-    let network = crate::core::networks::get_network_by_id(&networks, "testnet_sepolia")
+    let networks = core::networks::load_networks()?;
+    let network = core::networks::get_network_by_id(&networks, "testnet_sepolia")
         .ok_or_else(|| anyhow::anyhow!("Sepolia network not found"))?;
 
     let notes_opt = if notes.trim().is_empty() { None } else { Some(notes.as_str()) };
-    let result = crate::features::transfer::transfer_eth(&key, &to_address, amount, network, notes_opt)?;
+    let result = x_transaction::transfer_eth(&key, &to_address, amount, network, notes_opt)?;
 
     println!("{}", "✓".green().bold());
 

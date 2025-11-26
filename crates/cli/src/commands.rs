@@ -1,5 +1,5 @@
-use crate::core::config;
-use crate::features;
+use x_core::config;
+use x_signature;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -53,19 +53,19 @@ impl Cli {
                     config::load_private_key()?
                 };
 
-                let signature = features::sign_message(&key, message)?;
-                let address = features::get_address_from_private_key(&key)?;
+                let signature = x_signature::sign_message(&key, message)?;
+                let address = x_signature::get_address_from_private_key(&key)?;
                 println!("Signature: {}", signature);
                 println!("Address: {:#x}", address);
                 Ok(())
             }
 
             Commands::Verify { message, signature, address } => {
-                let expected_addr = crate::core::crypto::normalize_address(address)?;
-                let addr_bytes = crate::core::crypto::hex_to_bytes(&expected_addr)?;
+                let expected_addr = x_core::crypto::normalize_address(address)?;
+                let addr_bytes = x_core::crypto::hex_to_bytes(&expected_addr)?;
                 let expected_address = ethers::types::Address::from_slice(&addr_bytes);
                 
-                match features::verify_message(signature, message, expected_address) {
+                match x_signature::verify_message(signature, message, expected_address) {
                     Ok(_) => {
                         println!("valid");
                         Ok(())

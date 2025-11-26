@@ -1,0 +1,10 @@
+[package]
+name = "x_transaction"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+x_core = { path = "../core" }
+ethers = "2.0"
+anyhow = "1.0"
+tokio = { version = "1.0", features = ["full"] }

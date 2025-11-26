@@ -195,7 +195,6 @@ fn transfer_menu() -> anyhow::Result<()> {
 
         match selected {
             Ok(NetworkMenuItem::EthereumMainnet) => {
-                // For now, only Sepolia is implemented for development
                 println!("{}", "🚧 Ethereum Mainnet transfer not yet implemented. Use Sepolia for development.".yellow().bold());
                 println!();
                 println!("Press Enter to continue...");

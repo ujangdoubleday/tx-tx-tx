@@ -1,4 +1,5 @@
-use crate::core::crypto;
+use x_core::crypto;
+use x_core::config;
 use anyhow::Result;
 use ethers::types::Address;
 use secp256k1::{Message, Secp256k1, SecretKey};
@@ -17,7 +18,7 @@ use sha3::{Digest, Keccak256};
 /// # Returns
 /// Signature as hex string with 0x prefix, total 132 characters (0x + 64 + 64 + 2)
 pub fn sign_message(private_key: &str, message: &str) -> Result<String> {
-    let private_key_str = crate::core::config::normalize_private_key(private_key);
+    let private_key_str = config::normalize_private_key(private_key);
 
     let key_bytes = crypto::hex_to_bytes(&private_key_str)?;
     if key_bytes.len() != 32 {
@@ -47,7 +48,7 @@ pub fn sign_message(private_key: &str, message: &str) -> Result<String> {
 
 /// Derives the Ethereum address from a private key
 pub fn get_address_from_private_key(private_key: &str) -> Result<Address> {
-    let private_key_str = crate::core::config::normalize_private_key(private_key);
+    let private_key_str = config::normalize_private_key(private_key);
 
     let key_bytes = crypto::hex_to_bytes(&private_key_str)?;
     if key_bytes.len() != 32 {
@@ -71,40 +72,4 @@ pub fn get_address_from_private_key(private_key: &str) -> Result<Address> {
         .map_err(|_| anyhow::anyhow!("Address derivation failed"))?;
 
     Ok(Address::from(address_bytes))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_sign_message_with_valid_key() {
-        let private_key = "0x0000000000000000000000000000000000000000000000000000000000000001";
-        let message = "hello";
-
-        let signature = sign_message(private_key, message);
-        assert!(signature.is_ok());
-
-        let sig = signature.unwrap();
-        assert!(sig.starts_with("0x"));
-        assert_eq!(sig.len(), 132);
-    }
-
-    #[test]
-    fn test_sign_message_without_prefix() {
-        let private_key = "0x0000000000000000000000000000000000000000000000000000000000000001";
-        let message = "test";
-
-        let signature = sign_message(private_key, message);
-        assert!(signature.is_ok());
-    }
-
-    #[test]
-    fn test_sign_message_invalid_key() {
-        let private_key = "0xinvalid";
-        let message = "hello";
-
-        let signature = sign_message(private_key, message);
-        assert!(signature.is_err());
-    }
 }

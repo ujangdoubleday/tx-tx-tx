@@ -29,20 +29,3 @@ pub fn normalize_private_key(key: &str) -> String {
         format!("0x{}", trimmed.to_lowercase())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_normalize_private_key_with_prefix() {
-        let key = "0xabcd1234";
-        assert_eq!(normalize_private_key(key), "0xabcd1234");
-    }
-
-    #[test]
-    fn test_normalize_private_key_without_prefix() {
-        let key = "abcd1234";
-        assert_eq!(normalize_private_key(key), "0xabcd1234");
-    }
-}

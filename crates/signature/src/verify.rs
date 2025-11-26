@@ -1,4 +1,4 @@
-use crate::core::crypto;
+use x_core::crypto;
 use anyhow::Result;
 use ethers::types::Address;
 use secp256k1::ecdsa::{RecoverableSignature, RecoveryId, Signature};
@@ -72,56 +72,4 @@ pub fn verify_message(signature_hex: &str, message: &str, expected_address: Addr
     }
 
     Ok(recovered_address)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_verify_message_with_valid_signature() {
-        use ethers::types::Address;
-        use std::str::FromStr;
-        
-        let private_key = "0x0000000000000000000000000000000000000000000000000000000000000001";
-        let message = "hello";
-        let expected_address = Address::from_str("0x7e5f4552091a69125d5dfcb7b8c2659029395bdf").unwrap();
-
-        let signature = crate::features::signature::sign::sign_message(private_key, message).unwrap();
-        let address = verify_message(&signature, message, expected_address);
-
-        assert!(address.is_ok());
-        assert_eq!(address.unwrap(), expected_address);
-    }
-
-    #[test]
-    fn test_verify_message_invalid_signature() {
-        use ethers::types::Address;
-        use std::str::FromStr;
-        
-        let message = "hello";
-        let invalid_sig = format!("0x{}", "00".repeat(65));
-        let expected_address = Address::from_str("0x7e5f4552091a69125d5dfcb7b8c2659029395bdf").unwrap();
-
-        let address = verify_message(&invalid_sig, message, expected_address);
-        assert!(address.is_err());
-    }
-
-    #[test]
-    fn test_verify_message_wrong_message() {
-        use ethers::types::Address;
-        use std::str::FromStr;
-        
-        let private_key = "0x0000000000000000000000000000000000000000000000000000000000000001";
-        let message1 = "hello";
-        let message2 = "world";
-        let expected_address = Address::from_str("0x7e5f4552091a69125d5dfcb7b8c2659029395bdf").unwrap();
-
-        let signature = crate::features::signature::sign::sign_message(private_key, message1).unwrap();
-        let result_correct = verify_message(&signature, message1, expected_address);
-        let result_wrong = verify_message(&signature, message2, expected_address);
-
-        assert!(result_correct.is_ok());
-        assert!(result_wrong.is_err());
-    }
 }

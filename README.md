@@ -4,17 +4,21 @@ EVM message signing, verification, and ETH transfer tool implementing EIP-191 `p
 
 ## Prerequisites
 
+- [Rustc](https://rust-lang.org/tools/install/)
 - [Foundry](https://getfoundry.sh/) - Required for smart contract development and building
 
-## Quick Start
-
-### Build
+## Build
 
 ```bash
-cargo build --release
+make
 ```
 
-### Setup
+For release build:
+```bash
+make release
+```
+
+## Setup
 
 Create `.env` file from template:
 
@@ -28,9 +32,9 @@ Edit `.env` with your private key:
 ETH_PRIVATE_KEY=0x0000000000000000000000000000000000000000000000000000000000000001
 ```
 
-### Network Configuration
+## Network Configuration
 
-The app supports multiple EVM networks. Networks are configured in `data/networks.json`. You can add custom networks by editing this file.
+Networks are configured in `data/networks.json`. You can add custom networks by editing this file.
 
 **Network JSON template:**
 
@@ -60,8 +64,6 @@ The app supports multiple EVM networks. Networks are configured in `data/network
 - Ethereum Mainnet (chainId: 1)
 - Ethereum Sepolia Testnet (chainId: 11155111)
 
-For development, use Sepolia testnet. Add your custom network to the array in `networks.json` to use it in the transfer menu.
-
 ## Usage
 
 ### CLI Commands
@@ -69,13 +71,13 @@ For development, use Sepolia testnet. Add your custom network to the array in `n
 **Sign a message:**
 
 ```bash
-cargo run -- sign --message "Hello, World!"
+./tx-tx-tx sign --message "Hello, World!"
 ```
 
 **Verify a signature:**
 
 ```bash
-cargo run -- verify --message "Hello, World!" --signature 0x{signature_hex} --address 0x{address}
+./tx-tx-tx verify --message "Hello, World!" --signature 0x{signature_hex} --address 0x{address}
 ```
 
 ### Interactive Mode
@@ -83,16 +85,7 @@ cargo run -- verify --message "Hello, World!" --signature 0x{signature_hex} --ad
 Run without arguments:
 
 ```bash
-cargo run
-```
-
-## Running Tests
-
-```bash
-cargo test              # All tests
-cargo test --lib       # Unit tests
-cargo test --test integration  # Integration tests
-cargo run --example example_sign  # Example
+./tx-tx-tx
 ```
 
 ## Security Warning

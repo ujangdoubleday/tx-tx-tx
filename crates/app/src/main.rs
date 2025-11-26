@@ -1,11 +1,7 @@
 use clap::Parser;
 use std::env;
 
-mod cli;
-mod core;
-mod features;
-
-use cli::Cli;
+use x_cli::Cli;
 
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -14,6 +10,6 @@ fn main() -> anyhow::Result<()> {
         let cli = Cli::parse();
         cli.execute()
     } else {
-        cli::ui::run()
+        x_cli::ui::run()
     }
 }
