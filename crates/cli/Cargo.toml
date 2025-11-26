@@ -1,0 +1,14 @@
+[package]
+name = "x_cli"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+x_core = { path = "../core" }
+x_signature = { path = "../signature" }
+x_transaction = { path = "../transaction" }
+clap = { version = "4.4", features = ["derive"] }
+ethers = "2.0"
+anyhow = "1.0"
+inquire = "0.7"
+colored = "2.1"
