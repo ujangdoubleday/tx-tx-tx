@@ -1,6 +1,7 @@
 /target
 /artifacts
 /cache
+/deployments
 
 .env
 tx-tx-tx
