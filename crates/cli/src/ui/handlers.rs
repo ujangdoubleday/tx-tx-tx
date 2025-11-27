@@ -2,6 +2,7 @@ use colored::Colorize;
 use inquire::Text;
 use std::io::{self, Write};
 use x_core as core;
+use x_core::compiler::SmartContractCompiler;
 use x_signature;
 use x_transaction;
 
@@ -165,6 +166,22 @@ pub fn handle_transfer_sepolia() -> anyhow::Result<()> {
     if !notes.trim().is_empty() {
         print_line("Notes", notes.trim(), |s| s.normal());
     }
+    print_separator();
+    println!();
+
+    Ok(())
+}
+
+pub fn handle_compile_smart_contracts() -> anyhow::Result<()> {
+    println!("{}", "🔨 COMPILE SMART CONTRACTS".cyan().bold());
+    println!();
+
+    print!("{}", "Compiling all smart contracts... ".cyan());
+    std::io::Write::flush(&mut std::io::stdout())?;
+
+    SmartContractCompiler::compile_all()?;
+
+    println!("\n{}", "✅ COMPILATION SUCCESSFUL".green().bold());
     print_separator();
     println!();
 
