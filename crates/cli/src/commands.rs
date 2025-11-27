@@ -177,6 +177,16 @@ impl Cli {
 
                 let result = deployer.deploy(&artifact, None, strategy).await?;
 
+                let deployer_address = x_signature::get_address_from_private_key(&private_key)?;
+                
+                x_deploy::MetadataManager::save_deployment(
+                    contract,
+                    &format!("{:#x}", result.contract_address),
+                    network,
+                    &format!("{:#x}", result.tx_hash),
+                    &format!("{:#x}", deployer_address),
+                )?;
+
                 println!("\n✓ Deployment successful!");
                 println!("Contract Address: {:#x}", result.contract_address);
                 println!("Transaction Hash: {:#x}", result.tx_hash);
