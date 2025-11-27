@@ -66,6 +66,14 @@ Networks are configured in `data/networks.json`. You can add custom networks by 
 
 ## Usage
 
+### Interactive Mode
+
+Run without arguments:
+
+```bash
+./tx-tx-tx
+```
+
 ### CLI Commands
 
 **Sign a message:**
@@ -80,13 +88,21 @@ Networks are configured in `data/networks.json`. You can add custom networks by 
 ./tx-tx-tx verify --message "Hello, World!" --signature 0x{signature_hex} --address 0x{address}
 ```
 
-### Interactive Mode
-
-Run without arguments:
+**Transfer ETH:**
 
 ```bash
-./tx-tx-tx
+./tx-tx-tx transfer-eth --network testnet_sepolia --amount 0.01 --address 0x{recipient_address}
 ```
+
+With optional notes:
+
+```bash
+./tx-tx-tx transfer-eth --network testnet_sepolia --amount 0.01 --address 0x{recipient_address} --notes "payment for services"
+```
+
+**Available Networks:**
+
+See the [Network Configuration](#network-configuration) section for available networks. Use the `id` field as the `--network` parameter.
 
 ## Security Warning
 

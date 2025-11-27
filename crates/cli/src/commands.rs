@@ -1,5 +1,6 @@
 use x_core::config;
 use x_signature;
+use x_transaction;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -38,6 +39,25 @@ pub enum Commands {
         #[arg(long)]
         address: String,
     },
+
+    /// Transfer ETH to an address
+    TransferEth {
+        /// Network ID (e.g., ethereum_mainnet, testnet_sepolia)
+        #[arg(long)]
+        network: String,
+
+        /// Amount in ETH (e.g., 0.01)
+        #[arg(long)]
+        amount: f64,
+
+        /// Recipient Ethereum address
+        #[arg(long)]
+        address: String,
+
+        /// Transaction notes (optional)
+        #[arg(long)]
+        notes: Option<String>,
+    },
 }
 
 impl Cli {
@@ -75,6 +95,36 @@ impl Cli {
                         Ok(())
                     }
                 }
+            }
+
+            Commands::TransferEth {
+                network,
+                amount,
+                address,
+                notes,
+            } => {
+                let private_key = config::load_private_key()?;
+                let networks = x_core::networks::load_networks()?;
+                let network_obj = x_core::networks::get_network_by_id(&networks, network)
+                    .ok_or_else(|| anyhow::anyhow!("Network '{}' not found", network))?;
+
+                println!("Sending {:.4} ETH to {}...", amount, address);
+
+                let result = x_transaction::transfer_eth(
+                    &private_key,
+                    address,
+                    *amount,
+                    network_obj,
+                    notes.as_deref(),
+                )?;
+
+                let tx_hash = result.tx_hash.trim_matches('"').to_string();
+                let explorer_url = format!("{}/tx/{}", network_obj.block_explorer.url, tx_hash);
+
+                println!("Transaction successful!");
+                println!("TX Hash: {}", tx_hash);
+                println!("View on Explorer: {}", explorer_url);
+                Ok(())
             }
         }
     }
