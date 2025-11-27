@@ -6,6 +6,7 @@ use super::handlers::{self, clear_screen};
 pub enum MainMenuItem {
     Signatures,
     Transactions,
+    Compile,
     Quit,
 }
 
@@ -14,7 +15,8 @@ impl std::fmt::Display for MainMenuItem {
         match self {
             MainMenuItem::Signatures => write!(f, "1. Signatures"),
             MainMenuItem::Transactions => write!(f, "2. Transactions"),
-            MainMenuItem::Quit => write!(f, "3. Quit"),
+            MainMenuItem::Compile => write!(f, "3. Compile Smart Contracts"),
+            MainMenuItem::Quit => write!(f, "4. Quit"),
         }
     }
 }
@@ -230,10 +232,10 @@ pub fn run() -> anyhow::Result<()> {
         clear_screen();
         print_banner();
 
-        let options = vec![MainMenuItem::Signatures, MainMenuItem::Transactions, MainMenuItem::Quit];
+        let options = vec![MainMenuItem::Signatures, MainMenuItem::Transactions, MainMenuItem::Compile, MainMenuItem::Quit];
 
         let selected = Select::new("Choose an option:", options)
-            .with_page_size(2)
+            .with_page_size(4)
             .prompt();
 
         match selected {
@@ -242,6 +244,14 @@ pub fn run() -> anyhow::Result<()> {
             }
             Ok(MainMenuItem::Transactions) => {
                 transaction_menu()?;
+            }
+            Ok(MainMenuItem::Compile) => {
+                if let Err(e) = handlers::handle_compile_smart_contracts() {
+                    println!("{}", format!("❌ {}", e).red().bold());
+                }
+                println!();
+                println!("Press Enter to continue...");
+                std::io::stdin().read_line(&mut String::new())?;
             }
             Ok(MainMenuItem::Quit) => {
                 clear_screen();

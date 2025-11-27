@@ -1,12 +1,13 @@
 use x_core::config;
 use x_core::gas::GasStrategy;
+use x_core::compiler::SmartContractCompiler;
 use x_signature;
 use x_transaction;
 use x_deploy;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(name = "my_evm_signer")]
+#[command(name = "tx-tx-tx")]
 #[command(about = "EVM message signing and verification tool", long_about = None)]
 #[command(version)]
 pub struct Cli {
@@ -74,6 +75,14 @@ pub enum Commands {
         /// Gas strategy (low, standard, fast, instant)
         #[arg(long, default_value = "standard")]
         gas_strategy: String,
+    },
+
+    /// Compile smart contracts with Foundry
+    #[command(name = "compile-sc")]
+    CompileSc {
+        /// Contract name (optional - if not provided, compiles all contracts)
+        #[arg(long)]
+        contract: Option<String>,
     },
 }
 
@@ -208,6 +217,15 @@ impl Cli {
                 println!("View Transaction: {}", tx_explorer_url);
                 println!("View Contract: {}", contract_explorer_url);
                 
+                Ok(())
+            }
+
+            Commands::CompileSc { contract } => {
+                if let Some(contract_name) = contract {
+                    SmartContractCompiler::compile_contract(contract_name)?;
+                } else {
+                    SmartContractCompiler::compile_all()?;
+                }
                 Ok(())
             }
         }
