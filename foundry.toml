@@ -2,3 +2,5 @@
 src = "contracts"
 out = "artifacts"
 libs = []
+optimizer = true
+optimizer_runs = 200
