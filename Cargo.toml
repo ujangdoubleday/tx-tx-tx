@@ -4,6 +4,7 @@ members = [
     "crates/signature",
     "crates/transfer",
     "crates/deploy",
+    "crates/gate",
     "crates/cli",
     "crates/app",
 ]

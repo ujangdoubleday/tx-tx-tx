@@ -8,6 +8,7 @@ x_core = { path = "../core" }
 x_signature = { path = "../signature" }
 x_transfer = { path = "../transfer" }
 x_deploy = { path = "../deploy" }
+x_gate = { path = "../gate" }
 clap = { version = "4.4", features = ["derive"] }
 ethers = "2.0"
 anyhow = "1.0"
