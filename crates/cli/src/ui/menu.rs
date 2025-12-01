@@ -80,6 +80,23 @@ impl std::fmt::Display for GateNetworkMenuItem {
     }
 }
 
+#[derive(Clone, Copy)]
+pub enum GateFeatureMenuItem {
+    Deploy,
+    Back,
+    Quit,
+}
+
+impl std::fmt::Display for GateFeatureMenuItem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GateFeatureMenuItem::Deploy => write!(f, "1. Deploy Smart Contract"),
+            GateFeatureMenuItem::Back => write!(f, "2. Back"),
+            GateFeatureMenuItem::Quit => write!(f, "3. Quit"),
+        }
+    }
+}
+
 fn print_banner() {
     println!("{}", r#"
  /$$$$$$$$ /$$   /$$     /$$$$$$$$ /$$   /$$     /$$$$$$$$ /$$   /$$
@@ -197,6 +214,57 @@ fn network_menu() -> anyhow::Result<()> {
     }
 }
 
+fn gate_feature_menu(network_id: &str) -> anyhow::Result<()> {
+    loop {
+        clear_screen();
+        print_banner();
+
+        let options = vec![
+            GateFeatureMenuItem::Deploy,
+            GateFeatureMenuItem::Back,
+            GateFeatureMenuItem::Quit,
+        ];
+
+        let selected = Select::new("Choose a feature:", options)
+            .with_page_size(3)
+            .prompt();
+
+        match selected {
+            Ok(GateFeatureMenuItem::Deploy) => {
+                match handlers::handle_gate_deploy(network_id) {
+                    Ok(_) => {
+                        println!();
+                        println!("Press Enter to continue...");
+                        std::io::stdin().read_line(&mut String::new())?;
+                    }
+                    Err(e) => {
+                        let err_msg = e.to_string();
+                        if err_msg != "__BACK__" {
+                            println!("{}", format!("❌ {}", e).red().bold());
+                            println!();
+                            println!("Press Enter to continue...");
+                            std::io::stdin().read_line(&mut String::new())?;
+                        }
+                    }
+                }
+            }
+            Ok(GateFeatureMenuItem::Back) => {
+                return Ok(());
+            }
+            Ok(GateFeatureMenuItem::Quit) => {
+                clear_screen();
+                println!("{}", "👋 Goodbye!".green().bold());
+                std::process::exit(0);
+            }
+            Err(_) => {
+                clear_screen();
+                println!("{}", "👋 Goodbye!".green().bold());
+                std::process::exit(0);
+            }
+        }
+    }
+}
+
 fn gate_menu() -> anyhow::Result<()> {
     loop {
         clear_screen();
@@ -215,20 +283,10 @@ fn gate_menu() -> anyhow::Result<()> {
 
         match selected {
             Ok(GateNetworkMenuItem::EthereumMainnet) => {
-                if let Err(e) = handlers::handle_gate_mainnet() {
-                    println!("{}", format!("❌ {}", e).red().bold());
-                }
-                println!();
-                println!("Press Enter to continue...");
-                std::io::stdin().read_line(&mut String::new())?;
+                gate_feature_menu("ethereum_mainnet")?;
             }
             Ok(GateNetworkMenuItem::EthereumSepolia) => {
-                if let Err(e) = handlers::handle_gate_sepolia() {
-                    println!("{}", format!("❌ {}", e).red().bold());
-                }
-                println!();
-                println!("Press Enter to continue...");
-                std::io::stdin().read_line(&mut String::new())?;
+                gate_feature_menu("testnet_sepolia")?;
             }
             Ok(GateNetworkMenuItem::Back) => {
                 return Ok(());
