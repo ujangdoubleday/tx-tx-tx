@@ -5,7 +5,7 @@ use super::handlers::{self, clear_screen};
 #[derive(Clone, Copy)]
 pub enum MainMenuItem {
     Signatures,
-    Transactions,
+    TransferEth,
     Compile,
     Quit,
 }
@@ -14,7 +14,7 @@ impl std::fmt::Display for MainMenuItem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             MainMenuItem::Signatures => write!(f, "1. Signatures"),
-            MainMenuItem::Transactions => write!(f, "2. Transactions"),
+            MainMenuItem::TransferEth => write!(f, "2. Transfer ETH"),
             MainMenuItem::Compile => write!(f, "3. Compile Smart Contracts"),
             MainMenuItem::Quit => write!(f, "4. Quit"),
         }
@@ -25,13 +25,6 @@ impl std::fmt::Display for MainMenuItem {
 pub enum SignatureMenuItem {
     SignMessage,
     VerifyMessage,
-    Back,
-    Quit,
-}
-
-#[derive(Clone, Copy)]
-pub enum TransactionMenuItem {
-    Transfer,
     Back,
     Quit,
 }
@@ -51,16 +44,6 @@ impl std::fmt::Display for SignatureMenuItem {
             SignatureMenuItem::VerifyMessage => write!(f, "2. Verify Message"),
             SignatureMenuItem::Back => write!(f, "3. Back"),
             SignatureMenuItem::Quit => write!(f, "4. Quit"),
-        }
-    }
-}
-
-impl std::fmt::Display for TransactionMenuItem {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            TransactionMenuItem::Transfer => write!(f, "1. Transfer"),
-            TransactionMenuItem::Back => write!(f, "2. Back"),
-            TransactionMenuItem::Quit => write!(f, "3. Quit"),
         }
     }
 }
@@ -143,43 +126,9 @@ fn signature_menu() -> anyhow::Result<()> {
     }
 }
 
-fn transaction_menu() -> anyhow::Result<()> {
-    loop {
-        clear_screen();
-        print_banner();
 
-        let options = vec![
-            TransactionMenuItem::Transfer,
-            TransactionMenuItem::Back,
-            TransactionMenuItem::Quit,
-        ];
 
-        let selected = Select::new("Choose an option:", options)
-            .with_page_size(3)
-            .prompt();
-
-        match selected {
-            Ok(TransactionMenuItem::Transfer) => {
-                transfer_menu()?;
-            }
-            Ok(TransactionMenuItem::Back) => {
-                return Ok(());
-            }
-            Ok(TransactionMenuItem::Quit) => {
-                clear_screen();
-                println!("{}", "👋 Goodbye!".green().bold());
-                std::process::exit(0);
-            }
-            Err(_) => {
-                clear_screen();
-                println!("{}", "👋 Goodbye!".green().bold());
-                std::process::exit(0);
-            }
-        }
-    }
-}
-
-fn transfer_menu() -> anyhow::Result<()> {
+fn network_menu() -> anyhow::Result<()> {
     loop {
         clear_screen();
         print_banner();
@@ -232,7 +181,7 @@ pub fn run() -> anyhow::Result<()> {
         clear_screen();
         print_banner();
 
-        let options = vec![MainMenuItem::Signatures, MainMenuItem::Transactions, MainMenuItem::Compile, MainMenuItem::Quit];
+        let options = vec![MainMenuItem::Signatures, MainMenuItem::TransferEth, MainMenuItem::Compile, MainMenuItem::Quit];
 
         let selected = Select::new("Choose an option:", options)
             .with_page_size(4)
@@ -242,8 +191,8 @@ pub fn run() -> anyhow::Result<()> {
             Ok(MainMenuItem::Signatures) => {
                 signature_menu()?;
             }
-            Ok(MainMenuItem::Transactions) => {
-                transaction_menu()?;
+            Ok(MainMenuItem::TransferEth) => {
+                network_menu()?;
             }
             Ok(MainMenuItem::Compile) => {
                 if let Err(e) = handlers::handle_compile_smart_contracts() {
