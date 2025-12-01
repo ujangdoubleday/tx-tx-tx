@@ -2,7 +2,7 @@
 members = [
     "crates/core",
     "crates/signature",
-    "crates/transaction",
+    "crates/transfer",
     "crates/deploy",
     "crates/cli",
     "crates/app",

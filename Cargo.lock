@@ -4159,7 +4159,7 @@ dependencies = [
  "x_core",
  "x_deploy",
  "x_signature",
- "x_transaction",
+ "x_transfer",
 ]
 
 [[package]]
@@ -4201,7 +4201,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "x_transaction"
+name = "x_transfer"
 version = "0.1.0"
 dependencies = [
  "anyhow",
