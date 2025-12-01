@@ -4158,6 +4158,7 @@ dependencies = [
  "tokio",
  "x_core",
  "x_deploy",
+ "x_gate",
  "x_signature",
  "x_transfer",
 ]
@@ -4185,6 +4186,16 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+ "x_core",
+]
+
+[[package]]
+name = "x_gate"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "serde",
+ "serde_json",
  "x_core",
 ]
 

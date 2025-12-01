@@ -5,6 +5,7 @@ use x_core as core;
 use x_core::compiler::SmartContractCompiler;
 use x_signature;
 use x_transfer;
+use x_gate;
 
 const WIDTH: usize = 80;
 
@@ -182,6 +183,46 @@ pub fn handle_compile_smart_contracts() -> anyhow::Result<()> {
     SmartContractCompiler::compile_all()?;
 
     println!("\n{}", "✅ COMPILATION SUCCESSFUL".green().bold());
+    print_separator();
+    println!();
+
+    Ok(())
+}
+
+pub fn handle_gate_mainnet() -> anyhow::Result<()> {
+    println!("{}", "🌐 THE GATE - ETHEREUM MAINNET".cyan().bold());
+    println!();
+
+    let networks = core::networks::load_networks()?;
+    let network = core::networks::get_network_by_id(&networks, "ethereum_mainnet")
+        .ok_or_else(|| anyhow::anyhow!("Ethereum Mainnet network not found"))?;
+
+    println!("{}", "Available Features:".cyan().bold());
+    for (i, feature) in x_gate::Gate::get_features().iter().enumerate() {
+        println!("  {}. {}", i + 1, feature);
+    }
+    
+    print_line("Network", &network.name, |s| s.cyan());
+    print_separator();
+    println!();
+
+    Ok(())
+}
+
+pub fn handle_gate_sepolia() -> anyhow::Result<()> {
+    println!("{}", "🌐 THE GATE - ETHEREUM SEPOLIA".cyan().bold());
+    println!();
+
+    let networks = core::networks::load_networks()?;
+    let network = core::networks::get_network_by_id(&networks, "testnet_sepolia")
+        .ok_or_else(|| anyhow::anyhow!("Ethereum Sepolia network not found"))?;
+
+    println!("{}", "Available Features:".cyan().bold());
+    for (i, feature) in x_gate::Gate::get_features().iter().enumerate() {
+        println!("  {}. {}", i + 1, feature);
+    }
+    
+    print_line("Network", &network.name, |s| s.cyan());
     print_separator();
     println!();
 
