@@ -2,7 +2,7 @@ use x_core::config;
 use x_core::gas::GasStrategy;
 use x_core::compiler::SmartContractCompiler;
 use x_signature;
-use x_transaction;
+use x_transfer;
 use x_deploy;
 use clap::{Parser, Subcommand};
 
@@ -136,7 +136,7 @@ impl Cli {
 
                 println!("Sending {:.4} ETH to {}...", amount, address);
 
-                let result = x_transaction::transfer_eth_async(
+                let result = x_transfer::transfer_eth_async(
                     &private_key,
                     address,
                     *amount,

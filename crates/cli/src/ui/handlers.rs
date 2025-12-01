@@ -4,7 +4,7 @@ use std::io::{self, Write};
 use x_core as core;
 use x_core::compiler::SmartContractCompiler;
 use x_signature;
-use x_transaction;
+use x_transfer;
 
 const WIDTH: usize = 80;
 
@@ -153,7 +153,7 @@ pub fn handle_transfer_sepolia() -> anyhow::Result<()> {
         .ok_or_else(|| anyhow::anyhow!("Sepolia network not found"))?;
 
     let notes_opt = if notes.trim().is_empty() { None } else { Some(notes.as_str()) };
-    let result = x_transaction::transfer_eth(&key, &to_address, amount, network, notes_opt)?;
+    let result = x_transfer::transfer_eth(&key, &to_address, amount, network, notes_opt)?;
 
     println!("{}", "✓".green().bold());
 
