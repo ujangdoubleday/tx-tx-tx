@@ -6,31 +6,27 @@ DEBUG_BINARY=target/debug/$(BINARY_NAME)
 RELEASE_BINARY=target/release/$(BINARY_NAME)
 INSTALL_PATH=./$(BINARY_NAME)
 
-build: build-debug create-wrapper
+build: build-debug create-wrapper-debug
 
 build-debug:
 	cargo build
 
-release: build-release create-wrapper
+release: build-release create-wrapper-release
 
 build-release:
 	cargo build --release
 
-create-wrapper:
-	@if [ -f "$(DEBUG_BINARY)" ]; then \
-		echo '#!/bin/sh' > "$(INSTALL_PATH)"; \
-		echo 'exec "$$(dirname "$$0")/target/debug/$(BINARY_NAME)" "$$@"' >> "$(INSTALL_PATH)"; \
-		chmod +x "$(INSTALL_PATH)"; \
-		echo "✓ Wrapper created for debug binary"; \
-	elif [ -f "$(RELEASE_BINARY)" ]; then \
-		echo '#!/bin/sh' > "$(INSTALL_PATH)"; \
-		echo 'exec "$$(dirname "$$0")/target/release/$(BINARY_NAME)" "$$@"' >> "$(INSTALL_PATH)"; \
-		chmod +x "$(INSTALL_PATH)"; \
-		echo "✓ Wrapper created for release binary"; \
-	else \
-		echo "✗ Binary not found. Run 'make' or 'make release' first."; \
-		exit 1; \
-	fi
+create-wrapper-debug:
+	@echo '#!/bin/sh' > "$(INSTALL_PATH)"; \
+	echo 'exec "$$(dirname "$$0")/target/debug/$(BINARY_NAME)" "$$@"' >> "$(INSTALL_PATH)"; \
+	chmod +x "$(INSTALL_PATH)"; \
+	echo "✓ Wrapper created for debug binary"
+
+create-wrapper-release:
+	@echo '#!/bin/sh' > "$(INSTALL_PATH)"; \
+	echo 'exec "$$(dirname "$$0")/target/release/$(BINARY_NAME)" "$$@"' >> "$(INSTALL_PATH)"; \
+	chmod +x "$(INSTALL_PATH)"; \
+	echo "✓ Wrapper created for release binary"
 
 clean:
 	cargo clean
