@@ -8,7 +8,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "tx-tx-tx")]
-#[command(about = "EVM message signing and verification tool", long_about = None)]
+#[command(about = "EVM toolkit for signing, verification, transfers, and smart contract deployment.", long_about = None)]
 #[command(version)]
 pub struct Cli {
     #[command(subcommand)]
@@ -17,71 +17,53 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Sign a message with private key from .env
     Sign {
-        /// Message to sign
-        #[arg(long)]
+        #[arg(short, long)]
         message: String,
 
-        /// Private key (optional, uses .env if not provided)
-        #[arg(long)]
+        #[arg(short, long)]
         private_key: Option<String>,
     },
 
-    /// Verify a message signature against an expected address
     Verify {
-        /// Message that was signed
-        #[arg(long)]
+        #[arg(short, long)]
         message: String,
 
-        /// Signature in hex format (with or without 0x prefix)
-        #[arg(long)]
+        #[arg(short, long)]
         signature: String,
 
-        /// Expected Ethereum address (with or without 0x prefix)
-        #[arg(long)]
+        #[arg(short, long)]
         address: String,
     },
 
-    /// Transfer ETH to an address
     TransferEth {
-        /// Network ID (e.g., ethereum_mainnet, testnet_sepolia)
-        #[arg(long)]
+        #[arg(short, long)]
         network: String,
 
-        /// Amount in ETH (e.g., 0.01)
-        #[arg(long)]
+        #[arg(short, long)]
         amount: f64,
 
-        /// Recipient Ethereum address
-        #[arg(long)]
+        #[arg(short = 't', long)]
         address: String,
 
-        /// Transaction notes (optional)
-        #[arg(long)]
+        #[arg(short = 'N', long)]
         notes: Option<String>,
     },
 
-    /// Deploy a smart contract
     Deploy {
-        /// Network ID (e.g., ethereum_mainnet, testnet_sepolia)
-        #[arg(long)]
+        #[arg(short, long)]
         network: String,
 
-        /// Contract name (e.g., HelloWorld)
-        #[arg(long)]
+        #[arg(short, long)]
         contract: String,
 
-        /// Gas strategy (low, standard, fast, instant)
-        #[arg(long, default_value = "standard")]
+        #[arg(short, long, default_value = "standard")]
         gas_strategy: String,
     },
 
-    /// Compile smart contracts with Foundry
     #[command(name = "compile-sc")]
     CompileSc {
-        /// Contract name (optional - if not provided, compiles all contracts)
-        #[arg(long)]
+        #[arg(short, long)]
         contract: Option<String>,
     },
 }
