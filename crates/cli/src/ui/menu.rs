@@ -83,6 +83,7 @@ impl std::fmt::Display for GateNetworkMenuItem {
 #[derive(Clone, Copy)]
 pub enum GateFeatureMenuItem {
     Deploy,
+    SmartContractInvoker,
     Back,
     Quit,
 }
@@ -91,8 +92,9 @@ impl std::fmt::Display for GateFeatureMenuItem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             GateFeatureMenuItem::Deploy => write!(f, "1. Deploy Smart Contract"),
-            GateFeatureMenuItem::Back => write!(f, "2. Back"),
-            GateFeatureMenuItem::Quit => write!(f, "3. Quit"),
+            GateFeatureMenuItem::SmartContractInvoker => write!(f, "2. Smart Contract Invoker"),
+            GateFeatureMenuItem::Back => write!(f, "3. Back"),
+            GateFeatureMenuItem::Quit => write!(f, "4. Quit"),
         }
     }
 }
@@ -221,17 +223,36 @@ fn gate_feature_menu(network_id: &str) -> anyhow::Result<()> {
 
         let options = vec![
             GateFeatureMenuItem::Deploy,
+            GateFeatureMenuItem::SmartContractInvoker,
             GateFeatureMenuItem::Back,
             GateFeatureMenuItem::Quit,
         ];
 
         let selected = Select::new("Choose a feature:", options)
-            .with_page_size(3)
+            .with_page_size(4)
             .prompt();
 
         match selected {
             Ok(GateFeatureMenuItem::Deploy) => {
                 match handlers::handle_gate_deploy(network_id) {
+                    Ok(_) => {
+                        println!();
+                        println!("Press Enter to continue...");
+                        std::io::stdin().read_line(&mut String::new())?;
+                    }
+                    Err(e) => {
+                        let err_msg = e.to_string();
+                        if err_msg != "__BACK__" {
+                            println!("{}", format!("❌ {}", e).red().bold());
+                            println!();
+                            println!("Press Enter to continue...");
+                            std::io::stdin().read_line(&mut String::new())?;
+                        }
+                    }
+                }
+            }
+            Ok(GateFeatureMenuItem::SmartContractInvoker) => {
+                match handlers::handle_smart_contract_invoker(network_id) {
                     Ok(_) => {
                         println!();
                         println!("Press Enter to continue...");
