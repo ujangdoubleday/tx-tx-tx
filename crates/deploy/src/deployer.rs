@@ -120,6 +120,7 @@ impl ContractDeployer {
             gas_limit,
             max_priority_fee: None,
             max_fee_per_gas: None,
+            invoker: Some(from),
         };
 
         Ok(DeploymentResult {
