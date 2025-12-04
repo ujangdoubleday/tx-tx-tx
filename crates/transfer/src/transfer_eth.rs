@@ -69,6 +69,7 @@ pub async fn transfer_eth_with_strategy_async(
             amount_wei,
             data.clone(),
             gas_strategy,
+            Some(from_addr),
         )
         .await?;
 
@@ -107,6 +108,7 @@ pub async fn transfer_eth_with_strategy_async(
             amount_wei,
             data.clone(),
             gas_strategy,
+            Some(from_addr),
         )
         .await?;
 
