@@ -16,6 +16,7 @@ pub struct GasEstimate {
     pub gas_limit: U256,
     pub max_priority_fee: Option<U256>,
     pub max_fee_per_gas: Option<U256>,
+    pub invoker: Option<Address>,
 }
 
 pub struct GasCalculator;
@@ -28,6 +29,7 @@ impl GasCalculator {
         value: U256,
         data: Option<Vec<u8>>,
         strategy: GasStrategy,
+        invoker: Option<Address>,
     ) -> Result<GasEstimate> {
         let tx = TransactionRequest::new()
             .from(from)
@@ -65,6 +67,7 @@ impl GasCalculator {
             gas_limit,
             max_priority_fee: Some(priority_fee),
             max_fee_per_gas: Some(max_fee_per_gas),
+            invoker,
         })
     }
 
@@ -75,6 +78,7 @@ impl GasCalculator {
         value: U256,
         data: Option<Vec<u8>>,
         strategy: GasStrategy,
+        invoker: Option<Address>,
     ) -> Result<GasEstimate> {
         let tx = TransactionRequest::new()
             .from(from)
@@ -104,6 +108,7 @@ impl GasCalculator {
             gas_limit,
             max_priority_fee: None,
             max_fee_per_gas: None,
+            invoker,
         })
     }
 }
