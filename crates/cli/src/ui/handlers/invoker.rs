@@ -30,11 +30,16 @@ pub fn handle_smart_contract_invoker(network_id: &str) -> anyhow::Result<()> {
 
     let mut display_contracts = Vec::new();
     for (i, record) in filtered_records.iter().enumerate() {
+        let short_addr = if record.address.len() > 10 {
+            format!("{}...{}", &record.address[..6], &record.address[record.address.len()-4..])
+        } else {
+            record.address.clone()
+        };
         display_contracts.push(format!(
             "{}. {} - {}",
             i + 1,
             record.contract_name,
-            &record.address[..10]
+            short_addr
         ));
     }
     let back_num = filtered_records.len() + 1;
