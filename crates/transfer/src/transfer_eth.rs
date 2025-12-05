@@ -1,8 +1,8 @@
 use ethers::prelude::*;
 use ethers::types::Eip1559TransactionRequest;
-use std::convert::TryFrom;
 use x_core::networks::Network;
 use x_core::gas::{GasCalculator, GasStrategy};
+use x_core::network::{HttpClient, WebSocketClient};
 use anyhow::Result;
 
 #[derive(Debug)]
@@ -37,10 +37,16 @@ pub async fn transfer_eth_with_strategy_async(
     let rpc_url = network.rpc.first()
         .ok_or_else(|| anyhow::anyhow!("No RPC URL available for network"))?;
 
-    let provider = Provider::<Http>::try_from(rpc_url)
-        .map_err(|e| anyhow::anyhow!("Failed to create provider: {}", e))?;
+    let http_client = HttpClient::new(rpc_url).await?;
+    let provider = http_client.get_provider();
 
-    let client = SignerMiddleware::new(provider, wallet.with_chain_id(network.chain_id));
+    let ws_client = if !network.ws_rpc.is_empty() {
+        Some(WebSocketClient::new(&network.ws_rpc[0]))
+    } else {
+        None
+    };
+
+    let client = SignerMiddleware::new(provider.clone(), wallet.with_chain_id(network.chain_id));
 
     let to_address = x_core::crypto::normalize_address(to_address)?;
     let to_addr_bytes = x_core::crypto::hex_to_bytes(&to_address)?;
@@ -94,12 +100,26 @@ pub async fn transfer_eth_with_strategy_async(
         let pending_tx = client.send_transaction(tx, None).await
             .map_err(|e| anyhow::anyhow!("Failed to send transaction: {}", e))?;
 
+        let tx_hash = pending_tx.tx_hash();
+
+        if let Some(ws_client) = &ws_client {
+            match ws_client.wait_for_transaction_confirmation(tx_hash).await {
+                Ok(_) => {
+                    let tx_hash_str = format!("{:?}", tx_hash);
+                    return Ok(TransferResult { tx_hash: tx_hash_str });
+                }
+                Err(e) => {
+                    eprintln!("Warning: WebSocket confirmation failed: {}, falling back to HTTP polling", e);
+                }
+            }
+        }
+
         let receipt = pending_tx.confirmations(1).await
             .map_err(|e| anyhow::anyhow!("Failed to confirm transaction: {}", e))?
             .ok_or_else(|| anyhow::anyhow!("Transaction confirmation timeout"))?;
 
-        let tx_hash = format!("{:?}", receipt.transaction_hash);
-        Ok(TransferResult { tx_hash })
+        let tx_hash_str = format!("{:?}", receipt.transaction_hash);
+        Ok(TransferResult { tx_hash: tx_hash_str })
     } else {
         let gas_estimate = GasCalculator::estimate_gas_legacy(
             &client,
@@ -123,13 +143,27 @@ pub async fn transfer_eth_with_strategy_async(
         let pending_tx = client.send_transaction(tx, None).await
             .map_err(|e| anyhow::anyhow!("Failed to send transaction: {}", e))?;
 
+        let tx_hash = pending_tx.tx_hash();
+
+        if let Some(ws_client) = &ws_client {
+            match ws_client.wait_for_transaction_confirmation(tx_hash).await {
+                Ok(_) => {
+                    let tx_hash_str = format!("{:?}", tx_hash);
+                    return Ok(TransferResult { tx_hash: tx_hash_str });
+                }
+                Err(e) => {
+                    eprintln!("Warning: WebSocket confirmation failed: {}, falling back to HTTP polling", e);
+                }
+            }
+        }
+
         let receipt = pending_tx.confirmations(1).await
             .map_err(|e| anyhow::anyhow!("Failed to confirm transaction: {}", e))?
             .ok_or_else(|| anyhow::anyhow!("Transaction confirmation timeout"))?;
 
-        let tx_hash = format!("{:?}", receipt.transaction_hash);
+        let tx_hash_str = format!("{:?}", receipt.transaction_hash);
 
-        Ok(TransferResult { tx_hash })
+        Ok(TransferResult { tx_hash: tx_hash_str })
     }
 }
 

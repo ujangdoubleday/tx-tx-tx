@@ -4,3 +4,4 @@ pub mod networks;
 pub mod gas;
 pub mod compiler;
 pub mod invoker;
+pub mod network;
