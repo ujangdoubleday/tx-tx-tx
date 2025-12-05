@@ -27,37 +27,37 @@ make
 
 Interactive menu:
 ```bash
-./tx-tx-tx
+./tx
 ```
 
 Sign message:
 ```bash
-./tx-tx-tx sign --message "Hello, World!"
+./tx sign --message "Hello, World!"
 ```
 
 Verify signature:
 ```bash
-./tx-tx-tx verify --message "Hello, World!" --signature 0x... --address 0x...
+./tx verify --message "Hello, World!" --signature 0x... --address 0x...
 ```
 
 Transfer ETH:
 ```bash
-./tx-tx-tx transfer-eth --network testnet_sepolia --amount 0.01 --address 0x...
+./tx transfer-eth --network testnet_sepolia --amount 0.01 --address 0x...
 ```
 
 Compile all contracts:
 ```bash
-./tx-tx-tx compile-sc
+./tx compile-sc
 ```
 
 Compile specific contract:
 ```bash
-./tx-tx-tx compile-sc --contract HelloWorld
+./tx compile-sc --contract HelloWorld
 ```
 
 Deploy contract:
 ```bash
-./tx-tx-tx deploy --network testnet_sepolia --contract HelloWorld --gas-strategy standard
+./tx deploy --network testnet_sepolia --contract HelloWorld --gas-strategy standard
 ```
 
 **Gas strategies:** `low`, `standard`, `fast`, `instant`
