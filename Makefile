@@ -4,7 +4,7 @@
 BINARY_NAME=tx-tx-tx
 DEBUG_BINARY=target/debug/$(BINARY_NAME)
 RELEASE_BINARY=target/release/$(BINARY_NAME)
-INSTALL_PATH=./$(BINARY_NAME)
+INSTALL_PATH=./tx
 
 build: build-debug create-wrapper-debug
 
