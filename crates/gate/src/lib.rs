@@ -29,27 +29,35 @@ impl Gate {
     }
 
     pub fn get_available_contracts() -> Result<Vec<String>> {
+        let contracts_path = "contracts";
         let artifacts_path = "artifacts";
         
+        if !Path::new(contracts_path).exists() {
+            return Err(anyhow::anyhow!("Contracts folder not found at {}", contracts_path));
+        }
+
         if !Path::new(artifacts_path).exists() {
             return Err(anyhow::anyhow!("Artifacts folder not found at {}", artifacts_path));
         }
 
         let mut contracts = Vec::new();
         
-        for entry in fs::read_dir(artifacts_path)? {
+        for entry in fs::read_dir(contracts_path)? {
             let entry = entry?;
             let path = entry.path();
             
-            if path.is_dir() {
-                if let Some(dir_name) = path.file_name() {
-                    if let Some(name_str) = dir_name.to_str() {
+            if path.is_file() {
+                if let Some(file_name) = path.file_name() {
+                    if let Some(name_str) = file_name.to_str() {
                         if name_str.ends_with(".sol") {
                             let contract_name = name_str
                                 .trim_end_matches(".sol")
                                 .to_string();
                             
-                            let artifact_path = path.join(format!("{}.json", contract_name));
+                            let artifact_path = Path::new(artifacts_path)
+                                .join(format!("{}.sol", contract_name))
+                                .join(format!("{}.json", contract_name));
+                            
                             if artifact_path.exists() {
                                 contracts.push(contract_name);
                             }
@@ -60,7 +68,7 @@ impl Gate {
         }
 
         if contracts.is_empty() {
-            return Err(anyhow::anyhow!("No compiled contracts found in {}", artifacts_path));
+            return Err(anyhow::anyhow!("No compiled contracts found in {}", contracts_path));
         }
 
         contracts.sort();
