@@ -4,5 +4,5 @@
 /deployments
 
 .env
-tx-tx-tx
+tx
 foundry.lock
