@@ -5,9 +5,11 @@ use ethers::types::Eip1559TransactionRequest;
 use ethers::types::transaction::eip2718::TypedTransaction;
 use x_core::gas::{GasEstimate, GasStrategy};
 use x_core::networks::Network;
+use x_core::network::{HttpClient, WebSocketClient};
 
 pub struct ContractDeployer {
-    client: Provider<Http>,
+    http_client: HttpClient,
+    ws_client: Option<WebSocketClient>,
     wallet: LocalWallet,
     network: Network,
 }
@@ -26,8 +28,13 @@ impl ContractDeployer {
         private_key: &str,
         network: Network,
     ) -> Result<Self> {
-        let provider = Provider::<Http>::try_from(rpc_url)
-            .map_err(|e| anyhow::anyhow!("Failed to create provider: {}", e))?;
+        let http_client = HttpClient::new(rpc_url).await?;
+
+        let ws_client = if !network.ws_rpc.is_empty() {
+            Some(WebSocketClient::new(&network.ws_rpc[0]))
+        } else {
+            None
+        };
 
         let wallet: LocalWallet = private_key
             .parse()
@@ -36,7 +43,8 @@ impl ContractDeployer {
         let wallet = wallet.with_chain_id(network.chain_id);
 
         Ok(ContractDeployer {
-            client: provider,
+            http_client,
+            ws_client,
             wallet,
             network,
         })
@@ -65,22 +73,22 @@ impl ContractDeployer {
 
         let typed_tx = TypedTransaction::Legacy(tx_request.into());
 
-        let gas_limit = self.client
-            .estimate_gas(&typed_tx, None)
-            .await
-            .map_err(|e| anyhow::anyhow!("Failed to estimate gas: {}", e))?;
+        let gas_limit = self.http_client
+            .estimate_gas(&typed_tx)
+            .await?;
 
-        let gas_price = self.client
+        let gas_price = self.http_client
             .get_gas_price()
-            .await
-            .map_err(|e| anyhow::anyhow!("Failed to get gas price: {}", e))?;
+            .await?;
+
+        let provider = self.http_client.get_provider();
 
         let mut tx = Eip1559TransactionRequest::new()
             .data(init_code)
             .gas(gas_limit)
             .chain_id(self.network.chain_id);
 
-        let fee_history = self.client
+        let fee_history = provider
             .fee_history(1u64, BlockNumber::Latest, &[50.0])
             .await
             .map_err(|e| anyhow::anyhow!("Failed to fetch fee history: {}", e))?;
@@ -93,13 +101,52 @@ impl ContractDeployer {
                 .max_fee_per_gas(max_fee);
         }
 
-        let client = self.client.clone();
-        let wallet_client = SignerMiddleware::new(client, self.wallet.clone());
+        let wallet_client = SignerMiddleware::new(provider.clone(), self.wallet.clone());
 
         let pending_tx = wallet_client
             .send_transaction(tx, None)
             .await
             .map_err(|e| anyhow::anyhow!("Failed to send transaction: {}", e))?;
+
+        let tx_hash = pending_tx.tx_hash();
+
+        if let Some(ws_client) = &self.ws_client {
+            match ws_client.wait_for_transaction_confirmation(tx_hash).await {
+                Ok(_) => {
+                    let receipt = provider
+                        .get_transaction_receipt(tx_hash)
+                        .await
+                        .map_err(|e| anyhow::anyhow!("Failed to get receipt: {}", e))?
+                        .ok_or_else(|| anyhow::anyhow!("Receipt not found"))?;
+
+                    let contract_address = receipt
+                        .contract_address
+                        .ok_or_else(|| anyhow::anyhow!("Failed to get contract address"))?;
+
+                    let gas_used = receipt.gas_used.ok_or_else(|| {
+                        anyhow::anyhow!("Failed to get gas used")
+                    })?;
+
+                    let gas_estimate = GasEstimate {
+                        gas_price,
+                        gas_limit,
+                        max_priority_fee: None,
+                        max_fee_per_gas: None,
+                        invoker: Some(from),
+                    };
+
+                    return Ok(DeploymentResult {
+                        contract_address,
+                        tx_hash,
+                        gas_used,
+                        gas_estimate,
+                    });
+                }
+                Err(e) => {
+                    eprintln!("Warning: WebSocket confirmation failed: {}, falling back to HTTP polling", e);
+                }
+            }
+        }
 
         let receipt = pending_tx.confirmations(1).await
             .map_err(|e| anyhow::anyhow!("Failed to confirm transaction: {}", e))?
