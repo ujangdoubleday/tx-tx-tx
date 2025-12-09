@@ -36,6 +36,23 @@ impl ContractInvoker {
 
         Ok(DeployedContractInvoker { contract })
     }
+
+    pub fn get_contract_by_address(
+        &self,
+        contract_name: &str,
+        address: &str,
+        network: &str,
+    ) -> Result<DeployedContractInvoker> {
+        let contract = DeploymentManager::get_deployed_contract_by_address(
+            &self.deployments_file,
+            &self.artifact_dir,
+            contract_name,
+            address,
+            network,
+        )?;
+
+        Ok(DeployedContractInvoker { contract })
+    }
 }
 
 impl DeployedContractInvoker {

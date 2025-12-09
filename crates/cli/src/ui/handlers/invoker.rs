@@ -86,7 +86,7 @@ pub fn handle_smart_contract_invoker(network_id: &str) -> anyhow::Result<()> {
     let is_read = function_type_selected.contains("Read");
 
     let invoker = ContractInvoker::new(deployments_file, artifact_dir);
-    let contract_invoker = invoker.get_contract(&selected_record.contract_name, network_id)?;
+    let contract_invoker = invoker.get_contract_by_address(&selected_record.contract_name, &selected_record.address, network_id)?;
 
     println!();
     let all_functions = contract_invoker.get_all_functions()?;
