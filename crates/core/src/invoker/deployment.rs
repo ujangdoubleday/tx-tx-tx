@@ -82,6 +82,32 @@ impl DeploymentManager {
         Ok(DeployedContract { record, artifact })
     }
 
+    pub fn get_deployed_contract_by_address(
+        deployments_file: &str,
+        artifact_dir: &str,
+        contract_name: &str,
+        address: &str,
+        network: &str,
+    ) -> Result<DeployedContract> {
+        let records = Self::load_deployments(deployments_file)?;
+
+        let record = records
+            .into_iter()
+            .find(|r| r.contract_name == contract_name && r.address == address && r.network == network)
+            .ok_or_else(|| {
+                anyhow!(
+                    "Deployment not found for {} at address {} on network {}",
+                    contract_name,
+                    address,
+                    network
+                )
+            })?;
+
+        let artifact = Self::load_artifact(artifact_dir, contract_name)?;
+
+        Ok(DeployedContract { record, artifact })
+    }
+
     pub fn get_all_deployments_for_network(
         file_path: &str,
         network: &str,
