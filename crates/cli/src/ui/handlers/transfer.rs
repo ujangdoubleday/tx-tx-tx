@@ -3,6 +3,7 @@ use inquire::Text;
 use x_core as core;
 
 use super::utils::{print_separator, print_line};
+use crate::ui::loading::{create_spinner, finish_spinner};
 
 pub fn handle_transfer_sepolia() -> anyhow::Result<()> {
     println!("{}", "💸 TRANSFER ETH ON SEPOLIA".cyan().bold());
@@ -30,8 +31,7 @@ pub fn handle_transfer_sepolia() -> anyhow::Result<()> {
         .prompt()
         .map_err(|_| anyhow::anyhow!("Input cancelled"))?;
 
-    print!("{}", "Processing transfer... ".cyan());
-    std::io::Write::flush(&mut std::io::stdout())?;
+    let spinner = create_spinner("Processing transfer...");
 
     let key = core::config::load_private_key()
         .map_err(|_| anyhow::anyhow!("Failed to load private key from .env"))?;
@@ -43,7 +43,7 @@ pub fn handle_transfer_sepolia() -> anyhow::Result<()> {
     let notes_opt = if notes.trim().is_empty() { None } else { Some(notes.as_str()) };
     let result = x_transfer::transfer_eth(&key, &to_address, amount, network, notes_opt)?;
 
-    println!("{}", "✓".green().bold());
+    finish_spinner(spinner, "Processing transfer... ");
 
     println!("\n{}", "✅ TRANSFER SUCCESSFUL".green().bold());
     print_line("Amount", &format!("{} ETH", amount), |s| s.normal());

@@ -5,6 +5,7 @@ use x_core::invoker::{DeploymentManager, ContractInvoker, Codec};
 use alloy_dyn_abi::DynSolValue;
 
 use super::utils::{clear_screen, print_separator, print_line};
+use crate::ui::loading::{create_spinner, finish_spinner};
 
 pub fn handle_smart_contract_invoker(network_id: &str) -> anyhow::Result<()> {
     println!("{}", "📋 SMART CONTRACT INVOKER".cyan().bold());
@@ -185,8 +186,7 @@ fn handle_read_function(
     let dyn_func = contract_invoker.get_function_abi(selected_func)?;
     let _encoded = dyn_func.encode_call(selected_func, &dyn_args)?;
     
-    print!("{}", "Calling contract... ".cyan());
-    std::io::Write::flush(&mut std::io::stdout())?;
+    let spinner = create_spinner("Calling contract...");
 
     let rt = tokio::runtime::Runtime::new()?;
     let result = rt.block_on(async {
@@ -199,7 +199,7 @@ fn handle_read_function(
         ).await
     })?;
 
-    println!("{}", "✓".green().bold());
+    finish_spinner(spinner, "Calling contract... ");
 
     println!();
     println!("{}", "✅ READ FUNCTION RESULT".green().bold());
@@ -238,8 +238,7 @@ fn handle_write_function(
     let dyn_func = contract_invoker.get_function_abi(selected_func)?;
     let _encoded = dyn_func.encode_call(selected_func, &dyn_args)?;
     
-    print!("{}", "Sending transaction... ".cyan());
-    std::io::Write::flush(&mut std::io::stdout())?;
+    let spinner = create_spinner("Sending transaction...");
 
     let rt = tokio::runtime::Runtime::new()?;
     let result = rt.block_on(async {
@@ -252,7 +251,7 @@ fn handle_write_function(
         ).await
     })?;
 
-    println!("{}", "✓".green().bold());
+    finish_spinner(spinner, "Sending transaction... ");
 
     println!();
     println!("{}", "✅ TRANSACTION SUCCESSFUL".green().bold());
