@@ -13,13 +13,13 @@ pub fn handle_smart_contract_invoker(network_id: &str) -> anyhow::Result<()> {
     println!("{}", "📋 SMART CONTRACT INVOKER".cyan().bold());
     println!();
 
-    let deployments_file = "deployments/testnet_sepolia.json";
+    let deployments_file = format!("deployments/{}.json", network_id);
     let artifact_dir = "artifacts";
 
     print!("{}", "Loading deployed contracts... ".cyan());
     std::io::Write::flush(&mut std::io::stdout())?;
 
-    let records = DeploymentManager::load_deployments(deployments_file)?;
+    let records = DeploymentManager::load_deployments(&deployments_file)?;
     let filtered_records: Vec<_> = records.iter()
         .filter(|r| r.network == network_id)
         .collect();
@@ -89,7 +89,7 @@ pub fn handle_smart_contract_invoker(network_id: &str) -> anyhow::Result<()> {
     let is_read = function_type_selected.contains("Read");
     let is_stress = function_type_selected.contains("Stress");
 
-    let invoker = ContractInvoker::new(deployments_file, artifact_dir);
+    let invoker = ContractInvoker::new(&deployments_file, artifact_dir);
     let contract_invoker = invoker.get_contract_by_address(&selected_record.contract_name, &selected_record.address, network_id)?;
 
     println!();
