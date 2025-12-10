@@ -7,6 +7,7 @@ use x_deploy;
 use x_gate;
 
 use super::utils::{clear_screen, print_separator, print_line};
+use crate::ui::loading::{create_spinner, finish_spinner};
 
 pub fn handle_gate_mainnet() -> anyhow::Result<()> {
     println!("{}", "🌐 THE GATE - ETHEREUM MAINNET".cyan().bold());
@@ -124,8 +125,8 @@ pub fn handle_gate_deploy(network_id: &str) -> anyhow::Result<()> {
     println!("{}", "✓".green().bold());
 
     println!();
-    print!("{}", "Deploying contract... ".cyan());
-    std::io::Write::flush(&mut std::io::stdout())?;
+
+    let spinner = create_spinner("Deploying contract...");
 
     let rt = tokio::runtime::Runtime::new()?;
     let result = rt.block_on(async {
@@ -138,7 +139,7 @@ pub fn handle_gate_deploy(network_id: &str) -> anyhow::Result<()> {
         deployer.deploy(&artifact, None, gas_strategy).await
     })?;
 
-    println!("{}", "✓".green().bold());
+    finish_spinner(spinner, "Deploying contract... ");
 
     let deployer_address = x_signature::get_address_from_private_key(&private_key)?;
     
@@ -156,7 +157,7 @@ pub fn handle_gate_deploy(network_id: &str) -> anyhow::Result<()> {
     print_line("Contract Address", &format!("{:#x}", result.contract_address), |s| s.yellow());
     print_line("Transaction Hash", &format!("{:#x}", result.tx_hash), |s| s.green());
     print_line("Gas Used", &result.gas_used.to_string(), |s| s.normal());
-    print_line("Block Explorer", &format!("{}/address/{:#x}", network.block_explorer.url, result.contract_address), |s| s.blue());
+    print_line("Block Explorer", &format!("{}/tx/{:#x}", network.block_explorer.url, result.tx_hash), |s| s.blue());
     print_separator();
     println!();
 
