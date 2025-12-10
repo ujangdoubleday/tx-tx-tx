@@ -5,3 +5,4 @@ pub mod gas;
 pub mod compiler;
 pub mod invoker;
 pub mod network;
+pub mod stress;
