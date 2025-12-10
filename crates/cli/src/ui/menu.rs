@@ -1,6 +1,7 @@
 use colored::Colorize;
 use inquire::Select;
 use super::handlers::{self, clear_screen};
+use x_core as core;
 
 #[derive(Clone, Copy)]
 pub enum MainMenuItem {
@@ -9,6 +10,25 @@ pub enum MainMenuItem {
     TransferEth,
     Compile,
     Quit,
+}
+
+#[derive(Clone, Debug)]
+pub enum NetworkMenuChoice {
+    SelectNetwork(String),
+    Back,
+    Quit,
+}
+
+#[derive(Clone)]
+pub struct NetworkMenuOption {
+    pub choice: NetworkMenuChoice,
+    pub display: String,
+}
+
+impl std::fmt::Display for NetworkMenuOption {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.display)
+    }
 }
 
 impl std::fmt::Display for MainMenuItem {
@@ -31,21 +51,7 @@ pub enum SignatureMenuItem {
     Quit,
 }
 
-#[derive(Clone, Copy)]
-pub enum NetworkMenuItem {
-    EthereumMainnet,
-    EthereumSepolia,
-    Back,
-    Quit,
-}
 
-#[derive(Clone, Copy)]
-pub enum GateNetworkMenuItem {
-    EthereumMainnet,
-    EthereumSepolia,
-    Back,
-    Quit,
-}
 
 impl std::fmt::Display for SignatureMenuItem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -58,27 +64,7 @@ impl std::fmt::Display for SignatureMenuItem {
     }
 }
 
-impl std::fmt::Display for NetworkMenuItem {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            NetworkMenuItem::EthereumMainnet => write!(f, "1. Ethereum Mainnet"),
-            NetworkMenuItem::EthereumSepolia => write!(f, "2. Ethereum Sepolia Testnet"),
-            NetworkMenuItem::Back => write!(f, "3. Back"),
-            NetworkMenuItem::Quit => write!(f, "4. Quit"),
-        }
-    }
-}
 
-impl std::fmt::Display for GateNetworkMenuItem {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            GateNetworkMenuItem::EthereumMainnet => write!(f, "1. Ethereum Mainnet"),
-            GateNetworkMenuItem::EthereumSepolia => write!(f, "2. Ethereum Sepolia Testnet"),
-            GateNetworkMenuItem::Back => write!(f, "3. Back"),
-            GateNetworkMenuItem::Quit => write!(f, "4. Quit"),
-        }
-    }
-}
 
 #[derive(Clone, Copy)]
 pub enum GateFeatureMenuItem {
@@ -173,39 +159,53 @@ fn network_menu() -> anyhow::Result<()> {
         clear_screen();
         print_banner();
 
-        let options = vec![
-            NetworkMenuItem::EthereumMainnet,
-            NetworkMenuItem::EthereumSepolia,
-            NetworkMenuItem::Back,
-            NetworkMenuItem::Quit,
-        ];
+        let networks = core::networks::load_networks()?;
+        let mut options = Vec::new();
+        
+        for (index, network) in networks.iter().enumerate() {
+            options.push(NetworkMenuOption {
+                choice: NetworkMenuChoice::SelectNetwork(network.id.clone()),
+                display: format!("{}. {}", index + 1, network.name),
+            });
+        }
+        
+        options.push(NetworkMenuOption {
+            choice: NetworkMenuChoice::Back,
+            display: format!("{}. Back", options.len() + 1),
+        });
+        options.push(NetworkMenuOption {
+            choice: NetworkMenuChoice::Quit,
+            display: format!("{}. Quit", options.len() + 1),
+        });
 
         let selected = Select::new("Choose a network:", options)
-            .with_page_size(4)
+            .with_page_size(10)
             .prompt();
 
         match selected {
-            Ok(NetworkMenuItem::EthereumMainnet) => {
-                println!("{}", "🚧 Ethereum Mainnet transfer not yet implemented. Use Sepolia for development.".yellow().bold());
-                println!();
-                println!("Press Enter to continue...");
-                std::io::stdin().read_line(&mut String::new())?;
-            }
-            Ok(NetworkMenuItem::EthereumSepolia) => {
-                if let Err(e) = handlers::handle_transfer_sepolia() {
-                    println!("{}", format!("❌ {}", e).red().bold());
+            Ok(option) => {
+                match option.choice {
+                    NetworkMenuChoice::SelectNetwork(network_id) => {
+                        if network_id == "testnet_sepolia" {
+                            if let Err(e) = handlers::handle_transfer_sepolia() {
+                                println!("{}", format!("❌ {}", e).red().bold());
+                            }
+                        } else {
+                            println!("{}", "🚧 Transfer not yet implemented for this network.".yellow().bold());
+                        }
+                        println!();
+                        println!("Press Enter to continue...");
+                        std::io::stdin().read_line(&mut String::new())?;
+                    }
+                    NetworkMenuChoice::Back => {
+                        return Ok(());
+                    }
+                    NetworkMenuChoice::Quit => {
+                        clear_screen();
+                        println!("{}", "👋 Goodbye!".green().bold());
+                        std::process::exit(0);
+                    }
                 }
-                println!();
-                println!("Press Enter to continue...");
-                std::io::stdin().read_line(&mut String::new())?;
-            }
-            Ok(NetworkMenuItem::Back) => {
-                return Ok(());
-            }
-            Ok(NetworkMenuItem::Quit) => {
-                clear_screen();
-                println!("{}", "👋 Goodbye!".green().bold());
-                std::process::exit(0);
             }
             Err(_) => {
                 clear_screen();
@@ -291,31 +291,44 @@ fn gate_menu() -> anyhow::Result<()> {
         clear_screen();
         print_banner();
 
-        let options = vec![
-            GateNetworkMenuItem::EthereumMainnet,
-            GateNetworkMenuItem::EthereumSepolia,
-            GateNetworkMenuItem::Back,
-            GateNetworkMenuItem::Quit,
-        ];
+        let networks = core::networks::load_networks()?;
+        let mut options = Vec::new();
+        
+        for (index, network) in networks.iter().enumerate() {
+            options.push(NetworkMenuOption {
+                choice: NetworkMenuChoice::SelectNetwork(network.id.clone()),
+                display: format!("{}. {}", index + 1, network.name),
+            });
+        }
+        
+        options.push(NetworkMenuOption {
+            choice: NetworkMenuChoice::Back,
+            display: format!("{}. Back", options.len() + 1),
+        });
+        options.push(NetworkMenuOption {
+            choice: NetworkMenuChoice::Quit,
+            display: format!("{}. Quit", options.len() + 1),
+        });
 
         let selected = Select::new("Choose a network for The Gate:", options)
-            .with_page_size(4)
+            .with_page_size(10)
             .prompt();
 
         match selected {
-            Ok(GateNetworkMenuItem::EthereumMainnet) => {
-                gate_feature_menu("ethereum_mainnet")?;
-            }
-            Ok(GateNetworkMenuItem::EthereumSepolia) => {
-                gate_feature_menu("testnet_sepolia")?;
-            }
-            Ok(GateNetworkMenuItem::Back) => {
-                return Ok(());
-            }
-            Ok(GateNetworkMenuItem::Quit) => {
-                clear_screen();
-                println!("{}", "👋 Goodbye!".green().bold());
-                std::process::exit(0);
+            Ok(option) => {
+                match option.choice {
+                    NetworkMenuChoice::SelectNetwork(network_id) => {
+                        gate_feature_menu(&network_id)?;
+                    }
+                    NetworkMenuChoice::Back => {
+                        return Ok(());
+                    }
+                    NetworkMenuChoice::Quit => {
+                        clear_screen();
+                        println!("{}", "👋 Goodbye!".green().bold());
+                        std::process::exit(0);
+                    }
+                }
             }
             Err(_) => {
                 clear_screen();

@@ -29,8 +29,12 @@ pub struct BlockExplorer {
 }
 
 pub fn load_networks() -> Result<Vec<Network>> {
-    let content = fs::read_to_string("data/networks.json")
-        .map_err(|e| anyhow::anyhow!("Failed to read networks.json: {}", e))?;
+    let manifest_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let project_root = manifest_dir.parent().unwrap().parent().unwrap();
+    let networks_path = project_root.join("data/networks.json");
+    
+    let content = fs::read_to_string(&networks_path)
+        .map_err(|e| anyhow::anyhow!("Failed to read networks.json at {}: {}", networks_path.display(), e))?;
 
     let networks: Vec<Network> = serde_json::from_str(&content)
         .map_err(|e| anyhow::anyhow!("Failed to parse networks.json: {}", e))?;
