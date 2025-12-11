@@ -2,6 +2,7 @@
 /artifacts
 /cache
 /deployments
+/wallet
 
 .env
 tx
