@@ -9,6 +9,7 @@ pub enum MainMenuItem {
     Signatures,
     TransferEth,
     Compile,
+    GenerateWallet,
     Quit,
 }
 
@@ -38,7 +39,8 @@ impl std::fmt::Display for MainMenuItem {
             MainMenuItem::Signatures => write!(f, "2. Signatures"),
             MainMenuItem::TransferEth => write!(f, "3. Transfer ETH"),
             MainMenuItem::Compile => write!(f, "4. Compile Smart Contracts"),
-            MainMenuItem::Quit => write!(f, "5. Quit"),
+            MainMenuItem::GenerateWallet => write!(f, "5. Generate Wallet"),
+            MainMenuItem::Quit => write!(f, "6. Quit"),
         }
     }
 }
@@ -344,10 +346,10 @@ pub fn run() -> anyhow::Result<()> {
         clear_screen();
         print_banner();
 
-        let options = vec![MainMenuItem::TheGate, MainMenuItem::Signatures, MainMenuItem::TransferEth, MainMenuItem::Compile, MainMenuItem::Quit];
+        let options = vec![MainMenuItem::TheGate, MainMenuItem::Signatures, MainMenuItem::TransferEth, MainMenuItem::Compile, MainMenuItem::GenerateWallet, MainMenuItem::Quit];
 
         let selected = Select::new("Choose an option:", options)
-            .with_page_size(5)
+            .with_page_size(6)
             .prompt();
 
         match selected {
@@ -362,6 +364,14 @@ pub fn run() -> anyhow::Result<()> {
             }
             Ok(MainMenuItem::Compile) => {
                 if let Err(e) = handlers::handle_compile_smart_contracts() {
+                    println!("{}", format!("❌ {}", e).red().bold());
+                }
+                println!();
+                println!("Press Enter to continue...");
+                std::io::stdin().read_line(&mut String::new())?;
+            }
+            Ok(MainMenuItem::GenerateWallet) => {
+                if let Err(e) = handlers::handle_generate_wallet() {
                     println!("{}", format!("❌ {}", e).red().bold());
                 }
                 println!();
