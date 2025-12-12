@@ -1,0 +1,59 @@
+services:
+  tx-tx-tx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tx-tx-tx:latest
+    container_name: tx-tx-tx
+    environment:
+      - ETH_PRIVATE_KEY_FILE=/run/secrets/eth_private_key
+      - RUST_LOG=info
+    secrets:
+      - eth_private_key
+    volumes:
+      # Mount contracts directory for development (optional)
+      - ./contracts:/app/contracts:ro
+      # Mount artifacts directory for persistence
+      - tx_artifacts:/app/artifacts
+      # Mount foundry cache for performance
+      - foundry_cache:/root/.foundry/cache
+    networks:
+      - tx_network
+    restart: unless-stopped
+    # TTY allocation for interactive mode
+    tty: true
+    stdin_open: true
+
+  # Service for CLI commands (non-interactive)
+  tx-cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tx-tx-tx:latest
+    container_name: tx-cli
+    environment:
+      - ETH_PRIVATE_KEY_FILE=/run/secrets/eth_private_key
+      - RUST_LOG=info
+    secrets:
+      - eth_private_key
+    volumes:
+      - tx_artifacts:/app/artifacts
+      - foundry_cache:/root/.foundry/cache
+    networks:
+      - tx_network
+    command: ["--help"]
+
+networks:
+  tx_network:
+    driver: overlay
+    attachable: true
+
+volumes:
+  tx_artifacts:
+    driver: local
+  foundry_cache:
+    driver: local
+
+secrets:
+  eth_private_key:
+    external: true
