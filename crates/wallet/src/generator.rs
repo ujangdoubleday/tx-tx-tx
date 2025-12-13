@@ -43,9 +43,35 @@ impl WalletGenerator {
         Ok(())
     }
 
+    pub fn load_existing_wallets(output_path: &str) -> Result<Vec<Wallet>> {
+        if Path::new(output_path).exists() {
+            let content = fs::read_to_string(output_path)?;
+            let wallets: Vec<Wallet> = serde_json::from_str(&content)?;
+            Ok(wallets)
+        } else {
+            Ok(Vec::new())
+        }
+    }
+
+    fn get_next_id(existing_wallets: &[Wallet]) -> usize {
+        existing_wallets
+            .iter()
+            .filter_map(|w| w.id.parse::<usize>().ok())
+            .max()
+            .unwrap_or(0) + 1
+    }
+
     pub fn generate_and_save(count: usize, output_path: &str) -> Result<Vec<Wallet>> {
-        let wallets = Self::generate_wallets(count)?;
-        Self::save_wallets_to_json(&wallets, output_path)?;
-        Ok(wallets)
+        let mut existing_wallets = Self::load_existing_wallets(output_path)?;
+        let next_id = Self::get_next_id(&existing_wallets);
+        
+        let mut new_wallets = Vec::new();
+        for i in 0..count {
+            new_wallets.push(Self::generate_wallet_with_id(next_id + i)?);
+        }
+        
+        existing_wallets.extend(new_wallets.clone());
+        Self::save_wallets_to_json(&existing_wallets, output_path)?;
+        Ok(new_wallets)
     }
 }
