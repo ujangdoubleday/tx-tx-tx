@@ -1,5 +1,5 @@
 #!/bin/bash
-# Usage: ./run <command> [args...]
+# Usage: ./docker <command> [args...]
 
 set -e
 
@@ -34,27 +34,19 @@ print_warning() {
 show_help() {
     cat << EOF
 
-Usage: ./run <command> [args...]
+Usage: ./docker <command> [args...]
 
 Docker Commands:
-  build                    Build Docker image (make docker-build)
-  secret                   Create local .eth_secret file (make docker-secret)
-  secret-remove            Remove existing Docker Swarm secret (make docker-secret-remove)
-  run [ARGS]               Run container (make docker-run)
-                           UI mode by default, CLI mode with ARGS
-  clean                    Remove Docker resources (make docker-clean)
-  swarm                    Deploy to Docker Swarm with secrets (make docker-swarm)
-  logs                     View Swarm service logs (make docker-logs)
-  down                     Remove Swarm stack (make docker-down)
+  build                    Build Docker image
+  secret                   Create local .eth_secret file
+  run                      Run container in UI mode (interactive)
+  clean                    Remove Docker resources
 
 Examples:
-  ./run build                           # Build Docker image
-  ./run secret                          # Create local secret file
-  ./run run                             # Run UI mode (interactive)
-  ARGS="--help" ./run run              # Run CLI mode with help
-  ARGS="sign --help" ./run run          # Show sign command help
-  ./run clean                           # Clean Docker resources
-  ./run swarm                           # Deploy to Docker Swarm
+  ./docker build       # Build Docker image
+  ./docker secret      # Create local secret file
+  ./docker run         # Run UI mode (interactive)
+  ./docker clean       # Clean Docker resources
 
 For more options, see: make help
 EOF
@@ -103,28 +95,11 @@ main() {
         "secret")
             run_make "docker-secret"
             ;;
-        "secret-remove")
-            run_make "docker-secret-remove"
-            ;;
         "run")
-            shift
-            if [ -n "$ARGS" ]; then
-                run_make "docker-run"
-            else
-                run_make "docker-run"
-            fi
+            run_make "docker-run"
             ;;
         "clean")
             run_make "docker-clean"
-            ;;
-        "swarm")
-            run_make "docker-swarm"
-            ;;
-        "logs")
-            run_make "docker-logs"
-            ;;
-        "down")
-            run_make "docker-down"
             ;;
         "help"|"-h"|"--help")
             show_help

@@ -4,8 +4,6 @@ EVM toolkit for signing, verification, transfers, and smart contract deployment.
 
 ## Quick Start with Docker (Recommended)
 
-**Recommended for easy setup and deployment**
-
 ```bash
 # Make the run script executable
 chmod +x docker
@@ -18,10 +16,6 @@ chmod +x docker
 
 # Run interactive UI mode
 ./docker run
-
-# Or run CLI commands
-ARGS="--help" ./docker run
-ARGS="sign --message 'Hello, World!'" ./docker run
 ```
 
 ## Local Development
@@ -49,7 +43,6 @@ make
 
 ## Docker Commands
 
-### Basic Usage
 ```bash
 # Build Docker image
 ./docker build
@@ -57,36 +50,11 @@ make
 # Setup private key (creates .eth_secret file)
 ./docker secret
 
-# Interactive UI mode
+# Run interactive UI mode
 ./docker run
 
-# CLI commands
-ARGS="--help" ./docker run
-ARGS="sign --message 'Hello, World!'" ./docker run
-ARGS="transfer-eth --network testnet_sepolia --amount 0.01 --address 0x..." ./docker run
-ARGS="compile-sc" ./docker run
-ARGS="deploy --network testnet_sepolia --contract HelloWorld" ./docker run
-```
-
-### Docker Swarm (Production)
-```bash
-# Deploy to Docker Swarm with secrets
-./docker swarm
-
-# View logs
-./docker logs
-
-# Remove stack
-./docker down
-```
-
-### Management
-```bash
 # Clean Docker resources
 ./docker clean
-
-# Remove existing Docker secret
-./docker secret-remove
 
 # Show help
 ./docker help
