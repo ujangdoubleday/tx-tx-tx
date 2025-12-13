@@ -8,20 +8,20 @@ EVM toolkit for signing, verification, transfers, and smart contract deployment.
 
 ```bash
 # Make the run script executable
-chmod +x run
+chmod +x docker
 
 # Build the Docker image
-./run build
+./docker build
 
 # Setup your private key
-./run secret
+./docker secret
 
 # Run interactive UI mode
-./run run
+./docker run
 
 # Or run CLI commands
-ARGS="--help" ./run run
-ARGS="sign --message 'Hello, World!'" ./run run
+ARGS="--help" ./docker run
+ARGS="sign --message 'Hello, World!'" ./docker run
 ```
 
 ## Local Development
@@ -52,44 +52,44 @@ make
 ### Basic Usage
 ```bash
 # Build Docker image
-./run build
+./docker build
 
 # Setup private key (creates .eth_secret file)
-./run secret
+./docker secret
 
 # Interactive UI mode
-./run run
+./docker run
 
 # CLI commands
-ARGS="--help" ./run run
-ARGS="sign --message 'Hello, World!'" ./run run
-ARGS="transfer-eth --network testnet_sepolia --amount 0.01 --address 0x..." ./run run
-ARGS="compile-sc" ./run run
-ARGS="deploy --network testnet_sepolia --contract HelloWorld" ./run run
+ARGS="--help" ./docker run
+ARGS="sign --message 'Hello, World!'" ./docker run
+ARGS="transfer-eth --network testnet_sepolia --amount 0.01 --address 0x..." ./docker run
+ARGS="compile-sc" ./docker run
+ARGS="deploy --network testnet_sepolia --contract HelloWorld" ./docker run
 ```
 
 ### Docker Swarm (Production)
 ```bash
 # Deploy to Docker Swarm with secrets
-./run swarm
+./docker swarm
 
 # View logs
-./run logs
+./docker logs
 
 # Remove stack
-./run down
+./docker down
 ```
 
 ### Management
 ```bash
 # Clean Docker resources
-./run clean
+./docker clean
 
 # Remove existing Docker secret
-./run secret-remove
+./docker secret-remove
 
 # Show help
-./run help
+./docker help
 ```
 
 ## Local Commands
